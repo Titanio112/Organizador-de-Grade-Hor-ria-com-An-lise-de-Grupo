@@ -785,33 +785,39 @@
             saveState();
         }
 
-        function buildMainAppUI() {
-            mainAppContainer.innerHTML = `
-                <div class="flex justify-between items-start mb-4">
-                    <div class="text-left">
-                        <h1 class="text-3xl md:text-4xl font-bold">Organizador de Grade Horária 📚</h1>
-                        <p class="text-secondary mt-2">CEFET/MG - Unidade Varginha</p>
-                        <p class="text-xs text-gray-400 mt-1">Desenvolvido por: Antônio Prado Horta</p>
-                        <button id="donate-button" class="text-xs p-2 rounded-md mt-2">Gostou e te ajudou? Que tal um café para o dev? ☕</button>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <button id="help-button" title="Ajuda" class="w-10 h-10 bg-gray-700/50 rounded-full flex items-center justify-center text-indigo-300 hover:bg-gray-700/80 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        function buildMainAppUI() {
+            mainAppContainer.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <div class="text-left">
+                        <h1 class="text-3xl md:text-4xl font-bold">Organizador de Grade Horária 📚</h1>
+                        <p class="text-secondary mt-2">CEFET/MG - Unidade Varginha</p>
+                        <p class="text-xs text-gray-400 mt-1">Desenvolvido por: Antônio Prado Horta</p>
+                        <button id="donate-button" class="text-xs p-2 rounded-md mt-2">Gostou e te ajudou? Que tal um café para o dev? ☕</button>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        
+                        <!-- BOTÃO DE RESET ADICIONADO AQUI -->
+                        <button id="reset-app-btn" title="Resetar / Sair" class="w-10 h-10 bg-gray-700/50 rounded-full flex items-center justify-center text-red-400 hover:bg-gray-700/80 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                         </button>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-sm font-medium">Modo Simulação</span>
-                            <label for="sim-toggle" class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" value="" id="sim-toggle" class="sr-only peer">
-                                <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
-                            </label>
-                            <span class="text-lg">✨</span>
-                        </div>
-                    </div>
-                </div>
-                <div id="tabs" class="flex flex-wrap justify-center border-b mb-6" style="border-color: var(--tab-border);"></div>
-                <div id="tab-content"></div>
-            `;
-        }
+
+                        <button id="help-button" title="Ajuda" class="w-10 h-10 bg-gray-700/50 rounded-full flex items-center justify-center text-indigo-300 hover:bg-gray-700/80 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </button>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-medium">Modo Simulação</span>
+                            <label for="sim-toggle" class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" value="" id="sim-toggle" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                            </label>
+                            <span class="text-lg">✨</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="tabs" class="flex flex-wrap justify-center border-b mb-6" style="border-color: var(--tab-border);"></div>
+                <div id="tab-content"></div>
+            `;
+        }
         
         function buildContentPaneHTML(studentName) {
             const displayTimeSlots = [ "11:40-12:30", "13:00-13:50", "13:50-14:40", "14:40-15:30", "15:50-16:40", "16:40-17:30", "17:40-18:30", "19:00-19:50" ];
@@ -943,6 +949,18 @@
                 }
             });
             
+            // --- CÓDIGO DO BOTÃO DE RESET ADICIONADO AQUI ---
+            const resetBtn = document.getElementById('reset-app-btn');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', () => {
+                    if (confirm("Tem certeza que deseja resetar a aplicação? Todos os dados salvos serão perdidos.")) {
+                        localStorage.removeItem('gradeOrganizerState');
+                        location.reload();
+                    }
+                });
+            }
+            // -------------------------------------------------
+
             const prereqOverlay = document.getElementById('prereq-overlay');
             const prereqModal = document.getElementById('prereq-modal');
             contentContainer.addEventListener('mouseover', (e) => {
