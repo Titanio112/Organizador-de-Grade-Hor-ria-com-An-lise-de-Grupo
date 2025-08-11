@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizador de Grade Horária - SI (Completo)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #111827;
+            --text-color-primary: #f9fafb;
+            --text-color-secondary: #d1d5db;
+            --container-bg: rgba(31, 41, 55, 0.6);
+            --card-bg: rgba(55, 65, 81, 0.5);
+            --tab-active-bg: #6366f1;
+            --tab-inactive-bg: rgba(55, 65, 81, 0.4);
+            --tab-border: #4b5563;
+            --card-aprovado-border: #4ade80;
+            --card-reprovado-border: #f87171;
+            --card-refazer-border: #fcd34d;
+            --table-header-bg: rgba(75, 85, 99, 0.5);
+            --table-border: #4b5563;
+            --filled-slot-bg: #312e81;
+            --filter-bg: rgba(55, 65, 81, 0.7);
+            --conflict-border: #ef4444;
+            --accordion-bg: rgba(75, 85, 99, 0.3);
+            --simulated-overlay: rgba(74, 222, 128, 0.2);
+        }
+
+        @keyframes neon-pulse {
+            0%, 100% {
+                box-shadow: 0 0 6px 2px rgba(239, 68, 68, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 14px 4px rgba(239, 68, 68, 0.9);
+            }
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-image: linear-gradient(to top, #09203f 0%, #537895 100%);
+            background-attachment: fixed;
+            color: var(--text-color-primary);
+        }
+        .main-container { 
+            background-color: var(--container-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .text-secondary { color: var(--text-color-secondary); }
+        .tab-active { background-color: var(--tab-active-bg); color: var(--text-color-primary); }
+        .tab-inactive { background-color: var(--tab-inactive-bg); color: var(--text-color-secondary); }
+        .card { 
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease-in-out;
+            position: relative;
+        }
+        .card-aprovado { border-left: 5px solid var(--card-aprovado-border); }
+        .card-reprovado { border-left: 5px solid var(--card-reprovado-border); }
+        .card-refazer { border-left: 5px solid var(--card-refazer-border); }
+        .card-conflict {
+            animation: neon-pulse 1.2s infinite ease-in-out;
+            border-color: var(--conflict-border);
+        }
+        .card.simulated-pass::after {
+            content: 'APROVADO (SIMULAÇÃO)';
+            position: absolute;
+            inset: 0;
+            background-color: var(--simulated-overlay);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--card-aprovado-border);
+            border-radius: 0.5rem;
+            pointer-events: none;
+            font-size: 0.75rem;
+            text-align: center;
+            padding: 0.25rem;
+        }
+        .schedule-table {
+            background-color: var(--card-bg);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            table-layout: fixed;
+        }
+        .schedule-table th, .schedule-table td { 
+            border: 1px solid var(--table-border); 
+            text-align: center; 
+            padding: 0.25rem; 
+            font-size: 0.65rem;
+            min-width: 70px;
+            word-break: break-word;
+            hyphens: auto;
+            line-height: 1.2;
+        }
+        .schedule-table th { background-color: var(--table-header-bg); }
+        .schedule-conflict { background-color: #ef4444 !important; color: white; font-weight: bold; cursor: help; }
+        .filled-slot { background-color: var(--filled-slot-bg); }
+        .filter-button {
+            background-color: var(--tab-inactive-bg);
+            border: 1px solid var(--tab-border);
+            transition: all 0.2s;
+        }
+        .filter-button.active {
+            background-color: var(--tab-active-bg);
+            color: var(--text-color-primary);
+            border-color: var(--tab-active-bg);
+        }
+        .accordion-header {
+            background-color: var(--accordion-bg);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .accordion-header:hover {
+            background-color: rgba(75, 85, 99, 0.5);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            padding: 0 1rem;
+        }
+        .custom-checkbox {
+            cursor: pointer;
+            width: 1.5rem;
+            height: 1.5rem;
+            appearance: none;
+            background-color: rgba(255,255,255,0.1);
+            border: 2px solid var(--tab-border);
+            border-radius: 0.375rem;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .custom-checkbox:checked {
+            background-color: var(--tab-active-bg);
+            border-color: var(--tab-active-bg);
+        }
+        .custom-checkbox:checked::after {
+            content: '✔';
+            color: white;
+            font-size: 1rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #conflict-fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 50;
+        }
+        #conflict-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 320px;
+            background-color: var(--container-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 100;
+            border-top-left-radius: 1rem;
+            border-bottom-left-radius: 1rem;
+        }
+        #conflict-sidebar.open {
+            transform: translateX(0);
+        }
+
+        .modal-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-content {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+        }
+        .resolve-conflict-btn {
+            background-color: var(--tab-inactive-bg);
+            border: 1px solid var(--tab-border);
+            transition: all 0.2s;
+        }
+        .resolve-conflict-btn:hover {
+            background-color: var(--tab-active-bg);
+            color: var(--text-color-primary);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(31, 41, 55, 0.3);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4f46e5;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6366f1;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- DADOS DA APLICAÇÃO (SIMULANDO UM ARQUIVO EXTERNO) -->
+    <script id="app-data" type="application/json">
+    {
+        "studentStatus": {
+            "Antonio": { "G08CFVR1.01": "REPRO", "G08CSPBt.01": "APRO", "G08GAAL1.01": "REPRO", "G08LPC01.01": "REPRO", "G08PCOM1.01": "REPRO", "G08LPTA1.01": "APRO", "G08METC": "APRO", "G0811NSt.01": "APRO" },
+            "Pedro": { "G08CFVR1.01": "REPRO", "G08CSPBt.01": "APRO", "G08GAAL1.01": "REPRO", "G08LPC01.01": "REPRO", "G08PCOM1.01": "REPRO", "G08LPTA1.01": "APRO", "G08METC": "APRO", "G0811NSt.01": "APRO" },
+            "Miguel": { "G08CFVR1.01": "REPRO", "G08CSPBt.01": "REPRO", "G08GAAL1.01": "REPRO", "G08LPC01.01": "REPRO", "G08PCOM1.01": "APRO", "G08LPTA1.01": "APRO", "G08METC": "APRO", "G0811NSt.01": "APRO" },
+            "Theo": { "G08CFVR1.01": "REPRO", "G08CSPBt.01": "APRO", "G08GAAL1.01": "REPRO", "G08LPC01.01": "APRO", "G08PCOM1.01": "APRO", "G08LPTA1.01": "APRO", "G08METC": "APRO", "G0811NSt.01": "APRO" }
+        },
+        "subjects": {
+            "G08PCOM1.01": { "name": "Programação de Computadores I", "acronym": "PC I", "semester": 1, "schedule": [["seg", 7, 8]], "prerequisites": [] },
+            "G08CFVR1.01": { "name": "Cálculo com Funções de Uma Variável Real", "acronym": "Cálculo I", "semester": 1, "schedule": [["seg", 9, 10], ["ter", 11, 12], ["sex", 7, 8]], "prerequisites": [] },
+            "G08METC": { "name": "Metodologia Científica", "acronym": "Met. Cient.", "semester": 1, "schedule": [["seg", 11, 12]], "prerequisites": [] },
+            "G0811NSt.01": { "name": "Inglês Instrumental I", "acronym": "Inglês I", "semester": 1, "schedule": [["ter", 7, 8]], "prerequisites": [] },
+            "G08GAAL1.01": { "name": "Geometria Analítica e Álgebra Linear", "acronym": "GAAL", "semester": 1, "schedule": [["ter", 9, 10], ["sex", 9, 10]], "prerequisites": [] },
+            "G08LPC01.01": { "name": "Lab. de Programação de Computadores I", "acronym": "Lab PC I", "semester": 1, "schedule": [["qua", 7, 8]], "prerequisites": [] },
+            "G08CSPBt.01": { "name": "Contexto Social e Profissional do Bacharel em SI", "acronym": "CSPB", "semester": 1, "schedule": [["qui", 7, 8]], "prerequisites": [] },
+            "G08LPTA1.01": { "name": "Leitura e Produção de Textos Acadêmicos", "acronym": "LPTA", "semester": 1, "schedule": [["qui", 9, 10]], "prerequisites": [] },
+            "G08PCOM2.01": { "name": "Programação de Computadores II", "acronym": "PC II", "semester": 2, "schedule": [["sex", 9, 10]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
+            "G08LPC02.01": { "name": "Laboratório de Programação de Computadores II", "acronym": "Lab PC II", "semester": 2, "schedule": [["qui", 9, 10]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
+            "G08CFVV1.01": { "name": "Cálculo com Funções de Várias Variáveis I", "acronym": "Cálculo II", "semester": 2, "schedule": [["seg", 11, 12], ["sex", 7, 8]], "prerequisites": ["G08CFVR1.01"] },
+            "G08BDAD1.01": { "name": "Banco de Dados I", "acronym": "BD I", "semester": 2, "schedule": [["seg", 7, 8]], "prerequisites": [] },
+            "G08LBD1.01": { "name": "Laboratório de Banco de Dados I", "acronym": "Lab BD I", "semester": 2, "schedule": [["ter", 9, 10]], "prerequisites": [] },
+            "G08ISER0.01": { "name": "Integração e Séries", "acronym": "Int. Séries", "semester": 2, "schedule": [["seg", 9, 10], ["qui", 11, 12]], "prerequisites": ["G08CFVR1.01"] },
+            "G08ISOCO.01": { "name": "Informática e Sociedade", "acronym": "InfoSoc", "semester": 2, "schedule": [["qua", 7, 8]], "prerequisites": [] },
+            "G08AOC00.01": { "name": "Arquitetura e Organização de Computadores", "acronym": "AOC", "semester": 2, "schedule": [["ter", 11, 12], ["sex", 11, 12]], "prerequisites": [] },
+            "G08ALIN.03": { "name": "Álgebra Linear", "acronym": "Álgebra", "semester": 3, "schedule": [["ter", 9, 10], ["sex", 9, 10]], "prerequisites": ["G08GAAL1.01"] },
+            "G08BDAD2.03": { "name": "Banco de Dados II", "acronym": "BD II", "semester": 3, "schedule": [["sex", 7, 8]], "prerequisites": ["G08BDAD1.01"] },
+            "G08LBD2.03": { "name": "Laboratório de Banco de Dados II", "acronym": "Lab BD II", "semester": 3, "schedule": [["ter", 11, 12]], "prerequisites": ["G08BDAD1.01", "G08LBD1.01"] },
+            "G08EDO.03": { "name": "Equações Diferenciais Ordinárias", "acronym": "EDO", "semester": 3, "schedule": [["seg", 11, 12], ["qui", 9, 10]], "prerequisites": ["G08CFVV1.01", "G08ISER0.01"] },
+            "G08SOCI.03": { "name": "Introdução à Sociologia", "acronym": "Sociologia", "semester": 3, "schedule": [["sex", 11, 12]], "prerequisites": [] },
+            "G08PCOM3.03": { "name": "Programação de Computadores III", "acronym": "PC III", "semester": 3, "schedule": [["qui", 11, 12]], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
+            "G08LPC03.03": { "name": "Laboratório de Programação de Computadores III", "acronym": "Lab PC III", "semester": 3, "schedule": [["qua", 7, 8]], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
+            "G08MNUM.03": { "name": "Métodos Numéricos", "acronym": "Mét. Num.", "semester": 3, "schedule": [["seg", 9, 10], ["qui", 7, 8]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
+            "G08DINT.04": { "name": "Design de Interação", "acronym": "D. Interação", "semester": 4, "schedule": [["ter", 7, 8], ["sex", 11, 12]], "prerequisites": [] },
+            "G08ESW.04": { "name": "Engenharia de Software", "acronym": "Eng. Soft.", "semester": 4, "schedule": [["qua", 9, 10]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
+            "G08LESW.04": { "name": "Laboratório de Engenharia de Software", "acronym": "Lab Eng. Soft.", "semester": 4, "schedule": [["sex", 9, 10]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
+            "G08ESTAT.04": { "name": "Estatística", "acronym": "Estatística", "semester": 4, "schedule": [["ter", 9, 10], ["qua", 8, 9]], "prerequisites": [] },
+            "G08REDES.04": { "name": "Redes de Computadores", "acronym": "Redes", "semester": 4, "schedule": [["ter", 11, 12], ["qua", 7, 8]], "prerequisites": [] },
+            "G08LREDES.04": { "name": "Laboratório de Redes de Computadores", "acronym": "Lab Redes", "semester": 4, "schedule": [["seg", 11, 12]], "prerequisites": [] },
+            "G08SO.04": { "name": "Sistemas Operacionais", "acronym": "SO", "semester": 4, "schedule": [["seg", 9, 10], ["sex", 7, 8]], "prerequisites": ["G08AOC00.01"] },
+            "G08ED.05": { "name": "Estrutura de Dados", "acronym": "ED", "semester": 5, "schedule": [["qui", 7, 8]], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
+            "G08LED.05": { "name": "Laboratório de Estrutura de Dados", "acronym": "Lab ED", "semester": 5, "schedule": [["sex", 8, 9]], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
+            "G08FILO.05": { "name": "Filosofia da Tecnologia", "acronym": "Filosofia", "semester": 5, "schedule": [["ter", 9, 10]], "prerequisites": [] },
+            "G08GPROJ.05": { "name": "Gerenciamento de Projetos", "acronym": "Ger. Proj.", "semester": 5, "schedule": [["qui", 9, 10]], "prerequisites": ["G08ESW.04", "G08LESW.04"] },
+            "G08PWEB.05": { "name": "Programação Web", "acronym": "P. Web", "semester": 5, "schedule": [["qua", 7, 8]], "prerequisites": ["G08BDAD2.03", "G08LBD2.03", "G08PCOM3.03", "G08LPC03.03"] },
+            "G08LPWEB.05": { "name": "Laboratório de Programação Web", "acronym": "Lab P. Web", "semester": 5, "schedule": [["seg", 9, 10], ["qui", 11, 12]], "prerequisites": ["G08BDAD2.03", "G08LBD2.03", "G08PCOM3.03", "G08LPC03.03"] },
+            "G08MP.05": { "name": "Metodologia da Pesquisa", "acronym": "Met. Pesq.", "semester": 5, "schedule": [["sex", 7, 8]], "prerequisites": [] },
+            "G08PROB.05": { "name": "Teoria da Probabilidade", "acronym": "Probab.", "semester": 5, "schedule": [["seg", 7, 8], ["ter", 7, 8]], "prerequisites": ["G08ESTAT.04"] },
+            "G08AM.06": { "name": "Análise Multivariada", "acronym": "An. Multiv.", "semester": 6, "schedule": [["seg", 9, 10], ["ter", 11, 12]], "prerequisites": ["G08PROB.05"] },
+            "G08NUVEM.06": { "name": "Computação em Nuvem", "acronym": "Nuvem", "semester": 6, "schedule": [["ter", 9, 10]], "prerequisites": ["G08REDES.04", "G08LREDES.04"] },
+            "G08LNUVEM.06": { "name": "Laboratório de Computação em Nuvem", "acronym": "Lab Nuvem", "semester": 6, "schedule": [["sex", 9, 10]], "prerequisites": ["G08REDES.04", "G08LREDES.04"] },
+            "G08DADM.06": { "name": "Desenvolvimento de Aplicações para Dispositivos Móveis", "acronym": "DADM", "semester": 6, "schedule": [["qui", 7, 8]], "prerequisites": ["G08PWEB.05", "G08LPWEB.05"] },
+            "G08LDADM.06": { "name": "Laboratório de Des. de Aplicações para Disp. Móveis", "acronym": "Lab DADM", "semester": 6, "schedule": [["seg", 7, 8],["sex", 7, 8]], "prerequisites": ["G08PWEB.05", "G08LPWEB.05"] },
+            "G08EMP.06": { "name": "Empreendedorismo", "acronym": "Empreend.", "semester": 6, "schedule": [["ter", 7, 8], ["qua", 7, 8]], "prerequisites": [] },
+            "G08MD.06": { "name": "Matemática Discreta", "acronym": "Mat. Discreta", "semester": 6, "schedule": [["qui", 9, 10], ["sex", 11, 12]], "prerequisites": ["G08PROB.05", "G08PCOM2.01", "G08LPC02.01"] },
+            "OPT.PROTO": { "name": "Opt: Intro a Protótipos e Projetos", "acronym": "Opt. Protótipos", "semester": 7, "schedule": [], "prerequisites": [] },
+            "OPT.COMP": { "name": "Opt: Programação Competitiva", "acronym": "Opt. PC", "semester": 7, "schedule": [], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
+            "OPT.JUST": { "name": "Opt: Tecnologia e Justiça Fiscal", "acronym": "Opt. TJC", "semester": 7, "schedule": [], "prerequisites": [] }
+        }
+    }
+    </script>
+
+    <div class="main-container max-w-7xl mx-auto rounded-2xl shadow-lg p-6 md:p-8">
+        <div class="flex justify-between items-start mb-4">
+            <div class="text-left">
+                <h1 class="text-3xl md:text-4xl font-bold">Organizador de Grade Horária 📚</h1>
+                <p class="text-secondary mt-2">CEFET/MG - Unidade Varginha</p>
+                <p class="text-xs text-gray-400 mt-1">Desenvolvido por: Antônio Prado Horta</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="help-button" title="Ajuda" class="w-10 h-10 bg-gray-700/50 rounded-full flex items-center justify-center text-indigo-300 hover:bg-gray-700/80 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </button>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm font-medium">Modo Simulação</span>
+                    <label for="sim-toggle" class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" value="" id="sim-toggle" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                    </label>
+                    <span class="text-lg">✨</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="tabs" class="flex flex-wrap justify-center border-b mb-6" style="border-color: var(--tab-border);"></div>
+        
+        <div id="tab-content"></div>
+    </div>
+
+    <!-- Conflict FAB -->
+    <button id="conflict-fab" class="relative w-14 h-14 bg-indigo-600 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-indigo-700 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <span id="conflict-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden"></span>
+    </button>
+
+    <!-- Conflict Sidebar -->
+    <div id="conflict-sidebar" class="p-6 flex flex-col">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold">Resumo de Conflitos</h2>
+            <button id="close-sidebar" class="text-gray-400 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div id="conflict-list" class="flex-grow overflow-y-auto"></div>
+    </div>
+
+    <!-- Modal de Pré-requisitos -->
+    <div id="prereq-overlay" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40 opacity-0 pointer-events-none"></div>
+    <div id="prereq-modal" class="modal-content fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-md bg-gray-800 rounded-xl shadow-2xl z-50 p-6 opacity-0 scale-95 pointer-events-none">
+        <h3 id="prereq-modal-title" class="text-xl font-bold text-indigo-400 mb-4"></h3>
+        <div id="prereq-modal-content" class="space-y-2"></div>
+    </div>
+
+    <!-- Modal de Boas-vindas/Ajuda -->
+    <div id="welcome-overlay" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40 opacity-0 pointer-events-none"></div>
+    <div id="welcome-modal" class="modal-content fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-2xl bg-gray-800 rounded-xl shadow-2xl z-50 p-6 md:p-8 opacity-0 scale-95 pointer-events-none">
+        <h2 class="text-2xl md:text-3xl font-bold text-indigo-400 mb-4 text-center">Bem-vindo ao Organizador de Grade! 👋</h2>
+        <p class="text-center text-secondary mb-6">Aqui vai um guia rápido para você aproveitar ao máximo a ferramenta:</p>
+        <div class="space-y-4 text-left">
+            <div class="flex items-start space-x-4 p-3 bg-gray-900/50 rounded-lg">
+                <span class="text-2xl pt-1">✅</span>
+                <div>
+                    <h4 class="font-bold">Monte sua Grade</h4>
+                    <p class="text-sm text-secondary">Marque as caixas de seleção nas matérias que deseja cursar. Sua grade horária na parte inferior será atualizada automaticamente, mostrando possíveis conflitos em vermelho.</p>
+                </div>
+            </div>
+             <div class="flex items-start space-x-4 p-3 bg-gray-900/50 rounded-lg">
+                <span class="text-2xl pt-1">👥</span>
+                <div>
+                    <h4 class="font-bold">Análise de Grupo</h4>
+                    <p class="text-sm text-secondary">A nova aba "Grupo" analisa as matérias selecionadas por todos e mostra quais são compatíveis com o grupo todo, quais têm pendências e quais são individuais.</p>
+                </div>
+            </div>
+            <div class="flex items-start space-x-4 p-3 bg-gray-900/50 rounded-lg">
+                <span class="text-2xl pt-1">✨</span>
+                <div>
+                    <h4 class="font-bold">Simule o Futuro</h4>
+                    <p class="text-sm text-secondary">Ative o "Modo Simulação" e clique no ícone de chapéu (🎓) para simular a aprovação em uma matéria. Isso liberará as disciplinas que dependem dela, permitindo um planejamento avançado.</p>
+                </div>
+            </div>
+            <div class="flex items-start space-x-4 p-3 bg-gray-900/50 rounded-lg">
+                <span class="text-2xl pt-1">❌</span>
+                <div>
+                    <h4 class="font-bold">Veja Pré-requisitos Faltantes</h4>
+                    <p class="text-sm text-secondary">Passe o mouse sobre uma matéria bloqueada por alguns instantes. Um pop-up surgirá mostrando exatamente quais disciplinas você precisa concluir para liberá-la.</p>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-8">
+            <button id="close-welcome-modal" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Entendi, vamos lá!</button>
+        </div>
+    </div>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DATABASE ---
+        const dataElement = document.getElementById('app-data');
+        const appData = JSON.parse(dataElement.textContent);
+        const studentStatus = appData.studentStatus;
+        const subjects = appData.subjects;
+
+        const allTimeSlots = [ "7:00-7:50", "7:50-8:40", "9:00-9:50", "9:50-10:40", "10:50-11:40", "11:40-12:30", "13:00-13:50", "13:50-14:40", "14:40-15:30", "15:50-16:40", "16:40-17:30", "17:40-18:30", "19:00-19:50" ];
+        const timeSlotOffset = 6;
+        const displayTimeSlots = allTimeSlots.slice(timeSlotOffset - 1);
+        
+        const days = { 'seg': 'Segunda', 'ter': 'Terça', 'qua': 'Quarta', 'qui': 'Quinta', 'sex': 'Sexta' };
+        const dayOrder = ['seg', 'ter', 'qua', 'qui', 'sex'];
+        const tabsContainer = document.getElementById('tabs');
+        const contentContainer = document.getElementById('tab-content');
+        let approvedSubjectsCache = {};
+        const studentSelections = {};
+        const simulatedApprovals = {};
+        let simulationModeActive = false;
+        let currentStudent = '';
+        let hoverTimer = null;
+
+        // --- DATA PERSISTENCE ---
+        function saveState() {
+            try {
+                const selectionsToSave = {};
+                for (const student in studentSelections) {
+                    selectionsToSave[student] = Array.from(studentSelections[student]);
+                }
+                localStorage.setItem('gradeOrganizer_selections', JSON.stringify(selectionsToSave));
+
+                const simulationsToSave = {};
+                for (const student in simulatedApprovals) {
+                    simulationsToSave[student] = Array.from(simulatedApprovals[student]);
+                }
+                localStorage.setItem('gradeOrganizer_simulations', JSON.stringify(simulationsToSave));
+            } catch (e) {
+                console.error("Failed to save state to localStorage", e);
+            }
+        }
+
+        function loadState() {
+            try {
+                const savedSelections = JSON.parse(localStorage.getItem('gradeOrganizer_selections'));
+                if (savedSelections) {
+                    Object.keys(savedSelections).forEach(student => {
+                        if (studentSelections[student]) {
+                             studentSelections[student] = new Set(savedSelections[student]);
+                        }
+                    });
+                }
+
+                const savedSimulations = JSON.parse(localStorage.getItem('gradeOrganizer_simulations'));
+                if (savedSimulations) {
+                    Object.keys(savedSimulations).forEach(student => {
+                        if (simulatedApprovals[student]) {
+                            simulatedApprovals[student] = new Set(savedSimulations[student]);
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to load state from localStorage", e);
+            }
+        }
+
+
+        // --- CORE LOGIC ---
+        function checkPrerequisites(approvedForThisSimulation, subjectCode) {
+            const subject = subjects[subjectCode];
+            if (!subject.prerequisites || subject.prerequisites.length === 0) return true;
+            for (const prereqCode of subject.prerequisites) {
+                if (!approvedForThisSimulation.has(prereqCode)) return false;
+            }
+            return true;
+        }
+
+        function getApprovedSubjects(studentName) {
+            if (approvedSubjectsCache[studentName] && !simulationModeActive) return approvedSubjectsCache[studentName];
+            const approved = new Set();
+            if(studentStatus[studentName]) {
+                Object.keys(studentStatus[studentName]).forEach(code => {
+                    if (studentStatus[studentName][code] === 'APRO') approved.add(code);
+                });
+            }
+            approvedSubjectsCache[studentName] = approved;
+            return approved;
+        }
+
+        // --- UI RENDERING ---
+        function createSubjectCard(studentName, subjectCode, approvedForThisSimulation, initiallyApproved) {
+            const subject = subjects[subjectCode];
+            const isRetake = subject.semester === 1 && studentStatus[studentName][subjectCode] === 'REPRO';
+            const canTakeNow = checkPrerequisites(approvedForThisSimulation, subjectCode);
+            const wasUnlockedBySim = canTakeNow && !checkPrerequisites(initiallyApproved, subjectCode);
+            const isChecked = studentSelections[studentName]?.has(subjectCode);
+            const isSimulated = simulatedApprovals[studentName]?.has(subjectCode);
+            let cardClass = '', statusText = '', showCheckbox = false, showSimButton = false;
+
+            if (isRetake) {
+                cardClass = 'card-refazer'; statusText = '⚠️ Precisa Refazer'; showCheckbox = true; showSimButton = true;
+            } else if (subject.semester > 1 && canTakeNow) {
+                cardClass = 'card-aprovado'; 
+                statusText = wasUnlockedBySim ? '✨ Liberado p/ Simulação' : '✅ Pode Cursar';
+                showCheckbox = true; 
+                showSimButton = true;
+            } else if (subject.semester > 1 && !canTakeNow) {
+                cardClass = 'card-reprovado'; statusText = '❌ Não Pode Cursar'; showCheckbox = false;
+            } else {
+                return '';
+            }
+
+            const scheduleString = subject.schedule.length > 0
+                ? subject.schedule.map(s => `${days[s[0]].substring(0,3)}. ${allTimeSlots[s[1]-1].split('-')[0]}-${allTimeSlots[s[2]-1].split('-')[1]}`).join(' / ')
+                : 'Horário a definir';
+            
+            const checkboxHTML = showCheckbox ? `<input type="checkbox" data-student="${studentName}" data-subject="${subjectCode}" class="custom-checkbox schedule-checkbox" ${isChecked ? 'checked' : ''}>` : '<div class="w-6 h-6"></div>';
+            const simButtonHTML = simulationModeActive && showSimButton ? `<button title="Simular Aprovação" data-student="${studentName}" data-subject="${subjectCode}" class="simulate-btn w-7 h-7 flex items-center justify-center rounded-full bg-gray-600 hover:bg-gray-500 transition-colors text-sm">🎓</button>` : '<div class="w-7 h-7"></div>';
+
+            return `<div class="card p-4 rounded-lg shadow-sm ${cardClass} ${isSimulated ? 'simulated-pass' : ''}" data-subject-code="${subjectCode}">
+                        <div class="flex justify-between h-full space-x-2">
+                            <div class="flex-grow flex flex-col justify-between min-w-0">
+                                <div>
+                                    <p class="font-bold truncate">${subject.name}</p>
+                                    <p class="text-sm text-secondary truncate">${scheduleString}</p>
+                                </div>
+                                <p class="text-sm font-semibold mt-2">${statusText}</p>
+                            </div>
+                            <div class="flex-shrink-0 flex flex-col justify-between items-center space-y-2">
+                                ${checkboxHTML}
+                                ${simButtonHTML}
+                            </div>
+                        </div>
+                    </div>`;
+        }
+
+        function renderStudentContent(studentName) {
+            const pane = document.getElementById(`content-${studentName}`);
+            if (!pane) return;
+
+            const initiallyApproved = getApprovedSubjects(studentName);
+            const approvedForThisSimulation = new Set([...initiallyApproved, ...(simulatedApprovals[studentName] || [])]);
+            
+            const classifiedSubjects = { retake: {}, canTake: {}, cannotTake: {} };
+
+            Object.keys(subjects).forEach(code => {
+                const subject = subjects[code];
+                const semester = subject.semester;
+                const isRetake = semester === 1 && studentStatus[studentName][code] === 'REPRO';
+                const canTakeNow = checkPrerequisites(approvedForThisSimulation, code);
+                let category;
+                if (isRetake) category = 'retake';
+                else if (semester > 1 && canTakeNow) category = 'canTake';
+                else if (semester > 1 && !canTakeNow) category = 'cannotTake';
+                else return;
+                if (!classifiedSubjects[category][semester]) classifiedSubjects[category][semester] = [];
+                classifiedSubjects[category][semester].push(code);
+            });
+
+            ['retake', 'canTake', 'cannotTake'].forEach(category => {
+                const container = pane.querySelector(`#accordion-content-${category}`);
+                container.innerHTML = '';
+                const semesters = Object.keys(classifiedSubjects[category]).sort((a,b) => a - b);
+                
+                if (semesters.length === 0) {
+                    container.innerHTML = `<p class="text-secondary text-center p-4">Nenhuma matéria nesta categoria.</p>`;
+                } else {
+                    semesters.forEach(semester => {
+                        let semesterLabel = semester < 7 ? `${semester}º Semestre` : 'Optativas';
+                        let semesterGroupHTML = `<div class="semester-group mb-6" data-semester="${semester}"><h4 class="font-bold text-lg mb-3 text-secondary border-b border-gray-700 pb-2">${semesterLabel}</h4><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
+                        classifiedSubjects[category][semester].forEach(code => {
+                            semesterGroupHTML += createSubjectCard(studentName, code, approvedForThisSimulation, initiallyApproved);
+                        });
+                        semesterGroupHTML += `</div></div>`;
+                        container.innerHTML += semesterGroupHTML;
+                    });
+                }
+            });
+            
+            filterAndRender(studentName);
+        }
+        
+        function filterAndRender(studentName) {
+            const pane = document.getElementById(`content-${studentName}`);
+            const selectedSemesters = Array.from(pane.querySelectorAll('.filter-button.active')).map(btn => parseInt(btn.dataset.value));
+            const searchTerm = pane.querySelector('.search-input').value.toLowerCase();
+
+            pane.querySelectorAll('.semester-group').forEach(group => {
+                const semester = parseInt(group.dataset.semester);
+                let hasVisibleCards = false;
+
+                if (selectedSemesters.includes(semester)) {
+                    group.querySelectorAll('.card').forEach(card => {
+                        const subjectCode = card.dataset.subjectCode;
+                        const subjectName = subjects[subjectCode].name.toLowerCase();
+                        if (subjectName.includes(searchTerm)) {
+                            card.style.display = 'block';
+                            hasVisibleCards = true;
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                    group.style.display = hasVisibleCards ? 'block' : 'none';
+                } else {
+                    group.style.display = 'none';
+                }
+            });
+
+            updateSchedule(studentName);
+        }
+        
+        function updateSchedule(studentName) {
+            const pane = document.getElementById(`content-${studentName}`);
+            if (!pane) return;
+            const table = document.getElementById(`schedule-table-${studentName}`);
+            if (!table) return;
+            
+            table.querySelectorAll('td:not(:first-child)').forEach(td => { td.innerHTML = '&nbsp;'; td.className = ''; td.removeAttribute('title'); });
+            pane.querySelectorAll('.card').forEach(card => card.classList.remove('card-conflict'));
+
+            const checkboxes = pane.querySelectorAll('.schedule-checkbox:checked');
+            const scheduleMap = {};
+            const conflictingSubjectCodes = new Set();
+            const conflictDetails = {};
+            
+            checkboxes.forEach(cb => {
+                const subjectCode = cb.dataset.subject;
+                const subject = subjects[subjectCode];
+                subject.schedule.forEach(s => {
+                    for (let time = s[1]; time <= s[2]; time++) {
+                        if (time >= timeSlotOffset) {
+                            const rowIndex = time - timeSlotOffset;
+                            const cellId = `${s[0]}-${rowIndex}`;
+                            if (!scheduleMap[cellId]) scheduleMap[cellId] = [];
+                            scheduleMap[cellId].push({ name: subject.name, code: subjectCode });
+                        }
+                    }
+                });
+            });
+            
+            Object.keys(scheduleMap).forEach(cellId => {
+                const [dayKey, rowIndex] = cellId.split('-');
+                const cell = document.getElementById(`${studentName}-${dayKey}-${rowIndex}`);
+                const subjectsInSlot = scheduleMap[cellId];
+                
+                if (cell) {
+                    if (subjectsInSlot.length > 1) {
+                        cell.innerHTML = subjectsInSlot.map(sub => subjects[sub.code].acronym).join('<br>');
+                        cell.classList.add('schedule-conflict');
+                        const conflictTitle = `Conflito: ${subjectsInSlot.map(sub => sub.name).join(' vs ')}`;
+                        cell.title = conflictTitle;
+                        
+                        const timeLabel = `${days[dayKey]}, ${displayTimeSlots[rowIndex]}`;
+                        if (!conflictDetails[dayKey]) conflictDetails[dayKey] = {};
+                        if (!conflictDetails[dayKey][timeLabel]) conflictDetails[dayKey][timeLabel] = [];
+                        
+                        subjectsInSlot.forEach(sub => {
+                            conflictDetails[dayKey][timeLabel].push(sub);
+                            conflictingSubjectCodes.add(sub.code);
+                        });
+
+                    } else {
+                        cell.innerHTML = subjectsInSlot[0].name;
+                        cell.classList.add('filled-slot');
+                    }
+                }
+            });
+
+            conflictingSubjectCodes.forEach(code => {
+                const checkbox = pane.querySelector(`input[data-subject="${code}"]`);
+                if (checkbox) {
+                    checkbox.closest('.card').classList.add('card-conflict');
+                }
+            });
+
+            updateConflictMenu(conflictDetails);
+        }
+
+        function updateConflictMenu(conflictDetails) {
+            const list = document.getElementById('conflict-list');
+            const badge = document.getElementById('conflict-badge');
+            const conflictDays = Object.keys(conflictDetails);
+            const conflictCount = conflictDays.reduce((acc, day) => acc + Object.keys(conflictDetails[day]).length, 0);
+
+            if (conflictCount === 0) {
+                list.innerHTML = `<p class="text-secondary text-center mt-4">Nenhum conflito de horário. Grade perfeita! ✅</p>`;
+                badge.classList.add('hidden');
+                badge.textContent = '';
+            } else {
+                let html = '<div class="space-y-6">';
+                dayOrder.forEach(dayKey => {
+                    if (conflictDetails[dayKey]) {
+                        html += `<div><h3 class="text-lg font-bold text-indigo-400 border-b border-gray-700 pb-2 mb-3">${days[dayKey]}</h3><div class="space-y-4">`;
+                        Object.keys(conflictDetails[dayKey]).forEach(timeLabel => {
+                            const conflictingSubjects = conflictDetails[dayKey][timeLabel];
+                            html += `<div class="p-3 rounded-lg" style="background-color: var(--card-bg)">
+                                <p class="font-semibold text-gray-300">${timeLabel.split(', ')[1]}</p>
+                                <ul class="mt-2 space-y-2">`;
+                            
+                            for (let i = 0; i < conflictingSubjects.length; i++) {
+                                for (let j = i + 1; j < conflictingSubjects.length; j++) {
+                                    const subA = conflictingSubjects[i];
+                                    const subB = conflictingSubjects[j];
+                                    html += `<li class="border-t border-gray-700 pt-2">
+                                        <div class="flex justify-between items-center text-sm">
+                                            <div>
+                                                <p>${subA.name} <span class="text-xs text-secondary">(${subjects[subA.code].semester}ºP)</span></p>
+                                                <p class="text-red-400">vs</p>
+                                                <p>${subB.name} <span class="text-xs text-secondary">(${subjects[subB.code].semester}ºP)</span></p>
+                                            </div>
+                                            <div class="flex flex-col space-y-1">
+                                                <button class="resolve-conflict-btn text-xs px-2 py-1 rounded" data-keep-code="${subA.code}" data-remove-code="${subB.code}">Manter</button>
+                                                <button class="resolve-conflict-btn text-xs px-2 py-1 rounded" data-keep-code="${subB.code}" data-remove-code="${subA.code}">Manter</button>
+                                            </div>
+                                        </div>
+                                    </li>`;
+                                }
+                            }
+                            html += `</ul></div>`;
+                        });
+                        html += `</div></div>`;
+                    }
+                });
+                html += '</div>';
+                list.innerHTML = html;
+                badge.classList.remove('hidden');
+                badge.textContent = conflictCount;
+            }
+        }
+
+        function createGroupCard(data, type) {
+            const subject = data.subject;
+            const scheduleString = subject.schedule.length > 0
+                ? subject.schedule.map(s => `${days[s[0]].substring(0,3)}. ${allTimeSlots[s[1]-1].split('-')[0]}-${allTimeSlots[s[2]-1].split('-')[1]}`).join(' / ')
+                : 'Horário a definir';
+
+            let detailsHTML = '';
+            if (type === 'partial') {
+                detailsHTML = `<p class="text-xs text-red-300 mt-2">Não podem cursar: <span class="font-semibold">${data.ineligible.join(', ')}</span></p>`;
+            } else if (type === 'exclusive') {
+                detailsHTML = `<p class="text-xs text-indigo-300 mt-2">Apenas para: <span class="font-semibold">${data.eligible.join(', ')}</span></p>`;
+            }
+
+            return `<div class="card p-4 rounded-lg shadow-sm">
+                        <p class="font-bold truncate">${subject.name}</p>
+                        <p class="text-sm text-secondary truncate">${scheduleString}</p>
+                        ${detailsHTML}
+                    </div>`;
+        }
+
+        function renderGroupContent() {
+            const groupMembers = ['Antonio', 'Pedro', 'Miguel', 'Theo'];
+            const commonList = document.getElementById('group-common-list');
+            const partialList = document.getElementById('group-partial-list');
+            const exclusiveList = document.getElementById('group-exclusive-list');
+
+            if (!commonList) return; // Pane not ready
+
+            commonList.innerHTML = '';
+            partialList.innerHTML = '';
+            exclusiveList.innerHTML = '';
+
+            const allSelectedSubjects = new Set();
+            groupMembers.forEach(member => {
+                if (studentSelections[member]) {
+                    studentSelections[member].forEach(subjectCode => allSelectedSubjects.add(subjectCode));
+                }
+            });
+
+            if (allSelectedSubjects.size === 0) {
+                commonList.innerHTML = '<p class="text-secondary text-center p-4">Nenhuma matéria selecionada por qualquer membro do grupo.</p>';
+                partialList.innerHTML = '<p class="text-secondary text-center p-4">-</p>';
+                exclusiveList.innerHTML = '<p class="text-secondary text-center p-4">-</p>';
+                return;
+            }
+
+            const results = { common: [], partial: [], exclusive: [] };
+
+            allSelectedSubjects.forEach(subjectCode => {
+                const eligibleMembers = [];
+                const ineligibleMembers = [];
+
+                groupMembers.forEach(member => {
+                    const initiallyApproved = getApprovedSubjects(member);
+                    const approvedForThisSimulation = new Set([...initiallyApproved, ...(simulatedApprovals[member] || [])]);
+                    if (checkPrerequisites(approvedForThisSimulation, subjectCode)) {
+                        eligibleMembers.push(member);
+                    } else {
+                        ineligibleMembers.push(member);
+                    }
+                });
+
+                const subjectData = { code: subjectCode, subject: subjects[subjectCode], eligible: eligibleMembers, ineligible: ineligibleMembers };
+                
+                if (eligibleMembers.length === groupMembers.length) {
+                    results.common.push(subjectData);
+                } else if (eligibleMembers.length > 1) {
+                    results.partial.push(subjectData);
+                } else if (eligibleMembers.length === 1) {
+                    results.exclusive.push(subjectData);
+                } else { // eligibleMembers.length === 0
+                    results.partial.push(subjectData);
+                }
+            });
+
+            if (results.common.length > 0) {
+                results.common.forEach(data => commonList.innerHTML += createGroupCard(data, 'common'));
+            } else {
+                commonList.innerHTML = '<p class="text-secondary text-center p-4">Nenhuma matéria em comum encontrada para as seleções atuais.</p>';
+            }
+
+            if (results.partial.length > 0) {
+                results.partial.forEach(data => partialList.innerHTML += createGroupCard(data, 'partial'));
+            } else {
+                partialList.innerHTML = '<p class="text-secondary text-center p-4">Nenhuma matéria com pendências.</p>';
+            }
+
+            if (results.exclusive.length > 0) {
+                results.exclusive.forEach(data => exclusiveList.innerHTML += createGroupCard(data, 'exclusive'));
+            } else {
+                exclusiveList.innerHTML = '<p class="text-secondary text-center p-4">Nenhuma matéria individual.</p>';
+            }
+        }
+
+        function showTab(studentName) {
+            currentStudent = studentName;
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.toggle('tab-active', b.dataset.student === studentName));
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.toggle('tab-inactive', b.dataset.student !== studentName));
+            document.querySelectorAll('.tab-pane').forEach(p => p.style.display = p.id === `content-${studentName}` ? 'block' : 'none');
+            
+            if (studentName === 'Grupo') {
+                renderGroupContent();
+                // Hide conflict FAB for group view as it's not applicable
+                document.getElementById('conflict-fab').style.display = 'none';
+            } else {
+                renderStudentContent(studentName);
+                document.getElementById('conflict-fab').style.display = 'flex';
+            }
+        }
+
+        // --- INITIALIZATION ---
+        const studentNames = [...Object.keys(studentStatus), 'Grupo'];
+
+        studentNames.forEach((studentName) => {
+            if (studentName !== 'Grupo') {
+                studentSelections[studentName] = new Set();
+                simulatedApprovals[studentName] = new Set();
+            }
+
+            const tabButton = document.createElement('button');
+            tabButton.className = `tab-button text-sm md:text-base font-medium py-2 px-4 mx-1 mb-2 rounded-lg`;
+            tabButton.textContent = studentName === 'Grupo' ? '👥 Grupo' : studentName;
+            tabButton.dataset.student = studentName;
+            tabButton.addEventListener('click', () => showTab(studentName));
+            tabsContainer.appendChild(tabButton);
+
+            const contentPane = document.createElement('div');
+            contentPane.id = `content-${studentName}`;
+            contentPane.className = 'tab-pane';
+            
+            if (studentName === 'Grupo') {
+                contentPane.innerHTML = `
+                    <h2 class="text-2xl font-bold text-indigo-400 mb-6">Análise de Matérias do Grupo</h2>
+                    <p class="text-secondary mb-8">Esta seção analisa as matérias selecionadas por Antônio, Pedro, Miguel e Théo para encontrar a grade ideal para o grupo.</p>
+
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-green-400 mb-4 pb-2 border-b border-green-400/30">✅ Matérias que Todos Podem Cursar</h3>
+                            <div id="group-common-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-yellow-400 mb-4 pb-2 border-b border-yellow-400/30">⚠️ Matérias com Pendências</h3>
+                            <p class="text-secondary text-sm mb-4">Matérias selecionadas que um ou mais membros não podem cursar por falta de pré-requisitos.</p>
+                            <div id="group-partial-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-blue-400 mb-4 pb-2 border-b border-blue-400/30">👤 Matérias Individuais</h3>
+                            <p class="text-secondary text-sm mb-4">Matérias selecionadas que apenas um membro do grupo pode cursar.</p>
+                            <div id="group-exclusive-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const filterAndSearchHTML = `
+                    <div class="p-4 rounded-lg mb-6 bg-gray-900/30 flex flex-col md:flex-row gap-4 items-center">
+                        <div class="relative w-full md:w-1/3">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔎</span>
+                            <input type="text" placeholder="Buscar Matéria..." class="search-input w-full bg-gray-700/50 border border-gray-600 rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                        </div>
+                        <div class="flex-grow flex flex-wrap justify-center items-center gap-2">
+                             <p class="font-semibold text-secondary hidden md:block">Filtrar por Semestre:</p>
+                            ${[1, 2, 3, 4, 5, 6].map(s => `<button data-value="${s}" class="filter-button active px-3 py-1 rounded-md text-sm">${s}º</button>`).join('')}
+                            <button data-value="7" class="filter-button active px-3 py-1 rounded-md text-sm">Opt</button>
+                        </div>
+                    </div>`;
+
+                const accordionHTML = `
+                    <div class="space-y-4">
+                        <div class="accordion-item">
+                            <div class="accordion-header flex justify-between items-center p-4 rounded-lg">
+                                <h3 class="text-lg font-semibold text-green-400">✅ Pode Cursar</h3>
+                                <span class="transform transition-transform duration-200">▼</span>
+                            </div>
+                            <div class="accordion-content" id="accordion-content-canTake"></div>
+                        </div>
+                        <div class="accordion-item">
+                            <div class="accordion-header flex justify-between items-center p-4 rounded-lg">
+                                <h3 class="text-lg font-semibold text-yellow-400">⚠️ Matérias a Refazer</h3>
+                                <span class="transform transition-transform duration-200">▼</span>
+                            </div>
+                            <div class="accordion-content" id="accordion-content-retake"></div>
+                        </div>
+                        <div class="accordion-item">
+                            <div class="accordion-header flex justify-between items-center p-4 rounded-lg">
+                                <h3 class="text-lg font-semibold text-red-400">❌ Não Pode Cursar</h3>
+                                <span class="transform transition-transform duration-200">▼</span>
+                            </div>
+                            <div class="accordion-content" id="accordion-content-cannotTake"></div>
+                        </div>
+                    </div>`;
+
+                let tableHeader = '<tr><th class="w-24">Horário</th>';
+                Object.values(days).forEach(day => tableHeader += `<th>${day}</th>`);
+                tableHeader += '</tr>';
+
+                let tableBody = '';
+                displayTimeSlots.forEach((slot, i) => {
+                    tableBody += `<tr><td class="font-medium text-secondary">${slot}</td>`;
+                    Object.keys(days).forEach(dayKey => { tableBody += `<td id="${studentName}-${dayKey}-${i}">&nbsp;</td>`; });
+                    tableBody += '</tr>';
+                });
+
+                const scheduleHTML = `<div class="mt-10">
+                    <div class="flex justify-center items-center mb-4 gap-4">
+                        <h3 class="text-xl font-bold text-center">📅 Visualizador de Grade</h3>
+                        <button id="export-btn-${studentName}" class="export-btn bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold py-1 px-3 rounded-lg flex items-center gap-2 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                            Exportar
+                        </button>
+                    </div>
+                    <p class="text-center text-secondary mb-4">Selecione as matérias para montar sua grade e ver possíveis conflitos.</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full schedule-table" id="schedule-table-${studentName}">
+                            <thead>${tableHeader}</thead>
+                            <tbody>${tableBody}</tbody>
+                        </table>
+                    </div>
+                </div>`;
+
+                contentPane.innerHTML = `
+                    <h2 class="text-2xl font-bold text-indigo-400 mb-6">Opções para ${studentName}</h2>
+                    ${filterAndSearchHTML}
+                    ${accordionHTML}
+                    ${scheduleHTML}`;
+                
+                contentPane.querySelectorAll('.filter-button').forEach(btn => btn.addEventListener('click', (e) => {
+                    e.currentTarget.classList.toggle('active');
+                    filterAndRender(studentName);
+                }));
+                 contentPane.querySelector('.search-input').addEventListener('input', () => {
+                    filterAndRender(studentName);
+                });
+                contentPane.querySelectorAll('.accordion-header').forEach(header => {
+                    header.addEventListener('click', () => {
+                        const content = header.nextElementSibling;
+                        const arrow = header.querySelector('span');
+                        if (content.style.maxHeight) {
+                            content.style.maxHeight = null;
+                            content.style.padding = "0 1rem";
+                            arrow.style.transform = 'rotate(0deg)';
+                        } else {
+                            content.style.padding = "1rem";
+                            content.style.maxHeight = content.scrollHeight + "px";
+                            arrow.style.transform = 'rotate(180deg)';
+                        } 
+                    });
+                });
+            }
+            contentContainer.appendChild(contentPane);
+        });
+        
+        // --- EVENT LISTENERS ---
+        contentContainer.addEventListener('change', (e) => {
+            if (e.target.classList.contains('schedule-checkbox')) {
+                const student = e.target.dataset.student;
+                const subject = e.target.dataset.subject;
+                if (e.target.checked) {
+                    studentSelections[student].add(subject);
+                } else {
+                    studentSelections[student].delete(subject);
+                }
+                updateSchedule(student);
+                saveState();
+            }
+        });
+
+        contentContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('simulate-btn')) {
+                const student = e.target.dataset.student;
+                const subject = e.target.dataset.subject;
+                if (simulatedApprovals[student].has(subject)) {
+                    simulatedApprovals[student].delete(subject);
+                } else {
+                    simulatedApprovals[student].add(subject);
+                }
+                renderStudentContent(student);
+                saveState();
+            }
+            if (e.target.closest('.export-btn')) {
+                const btn = e.target.closest('.export-btn');
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = 'Exportando...';
+                btn.disabled = true;
+                const tableId = `schedule-table-${currentStudent}`;
+                const scheduleTable = document.getElementById(tableId);
+                
+                html2canvas(scheduleTable, {
+                    backgroundColor: '#1f2937',
+                    scale: 2
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `grade-horaria-${currentStudent}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                }).catch(err => {
+                    console.error("Erro ao exportar a imagem:", err);
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                });
+            }
+        });
+        
+        // --- Modal de Pré-requisitos ---
+        const prereqOverlay = document.getElementById('prereq-overlay');
+        const prereqModal = document.getElementById('prereq-modal');
+
+        contentContainer.addEventListener('mouseover', (e) => {
+            const card = e.target.closest('.card-reprovado');
+            if (card && !hoverTimer) {
+                hoverTimer = setTimeout(() => {
+                    const subjectCode = card.dataset.subjectCode;
+                    const subject = subjects[subjectCode];
+                    if (!subject || !subject.prerequisites || subject.prerequisites.length === 0) return;
+
+                    const initiallyApproved = getApprovedSubjects(currentStudent);
+                    const approvedForThisSimulation = new Set([...initiallyApproved, ...(simulatedApprovals[currentStudent] || [])]);
+                    const missingPrereqs = subject.prerequisites.filter(p => !approvedForThisSimulation.has(p));
+
+                    if (missingPrereqs.length > 0) {
+                        const modalTitle = document.getElementById('prereq-modal-title');
+                        const modalContent = document.getElementById('prereq-modal-content');
+
+                        modalTitle.textContent = `Pré-requisitos para: ${subject.name}`;
+                        modalContent.innerHTML = missingPrereqs.map(prereqCode => {
+                            const prereqSubject = subjects[prereqCode];
+                            const status = studentStatus[currentStudent][prereqCode];
+                            return `<div class="bg-gray-700 p-3 rounded-md flex justify-between items-center">
+                                        <span>${prereqSubject.name}</span>
+                                        <span class="text-xs font-bold px-2 py-1 rounded-full ${status === 'REPRO' ? 'bg-red-500 text-white' : 'bg-yellow-500 text-black'}">
+                                            ${status === 'REPRO' ? 'Reprovado' : 'Pendente'}
+                                        </span>
+                                    </div>`;
+                        }).join('');
+
+                        prereqOverlay.classList.add('active');
+                        prereqModal.classList.add('active');
+                    }
+                    hoverTimer = null;
+                }, 500);
+            }
+        });
+
+        contentContainer.addEventListener('mouseout', (e) => {
+            const card = e.target.closest('.card-reprovado');
+            if (card) {
+                clearTimeout(hoverTimer);
+                hoverTimer = null;
+            }
+        });
+
+        prereqOverlay.addEventListener('click', () => {
+            prereqOverlay.classList.remove('active');
+            prereqModal.classList.remove('active');
+        });
+
+        // --- LÓGICA DO GUIA RÁPIDO ---
+        const welcomeOverlay = document.getElementById('welcome-overlay');
+        const welcomeModal = document.getElementById('welcome-modal');
+        const closeWelcomeBtn = document.getElementById('close-welcome-modal');
+        const helpBtn = document.getElementById('help-button');
+
+        function showWelcomeModal() {
+            welcomeOverlay.classList.add('active');
+            welcomeModal.classList.add('active');
+        }
+
+        function hideWelcomeModal() {
+            welcomeOverlay.classList.remove('active');
+            welcomeModal.classList.remove('active');
+            localStorage.setItem('gradeOrganizer_hasVisited', 'true');
+        }
+
+        helpBtn.addEventListener('click', showWelcomeModal);
+        closeWelcomeBtn.addEventListener('click', hideWelcomeModal);
+        welcomeOverlay.addEventListener('click', hideWelcomeModal);
+
+        if (!localStorage.getItem('gradeOrganizer_hasVisited')) {
+            showWelcomeModal();
+        }
+
+        // --- OUTROS LISTENERS ---
+        const simToggle = document.getElementById('sim-toggle');
+        simToggle.addEventListener('change', () => {
+            simulationModeActive = simToggle.checked;
+            if (!simulationModeActive) {
+                Object.keys(simulatedApprovals).forEach(student => simulatedApprovals[student].clear());
+                saveState();
+            }
+            showTab(currentStudent);
+        });
+        
+        const fab = document.getElementById('conflict-fab');
+        const sidebar = document.getElementById('conflict-sidebar');
+        const closeSidebarBtn = document.getElementById('close-sidebar');
+        const conflictList = document.getElementById('conflict-list');
+
+        fab.addEventListener('click', () => sidebar.classList.add('open'));
+        closeSidebarBtn.addEventListener('click', () => sidebar.classList.remove('open'));
+        
+        conflictList.addEventListener('click', (e) => {
+            const btn = e.target.closest('.resolve-conflict-btn');
+            if (btn) {
+                const { keepCode, removeCode } = btn.dataset;
+                const pane = document.getElementById(`content-${currentStudent}`);
+                const checkboxToRemove = pane.querySelector(`.schedule-checkbox[data-subject="${removeCode}"]`);
+                if (checkboxToRemove && checkboxToRemove.checked) {
+                    checkboxToRemove.checked = false;
+                    checkboxToRemove.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+                sidebar.classList.remove('open');
+            }
+        });
+
+        loadState();
+        showTab(Object.keys(studentStatus)[0]);
+    });
+    </script>
+
+</body>
+</html>
