@@ -1262,7 +1262,7 @@
                 subject.schedule.forEach(s => {
                     for (let time = s[1]; time <= s[2]; time++) {
                         if (time > timeSlotOffset) {
-                            const rowIndex = time - timeSlotOffset -1;
+                            const rowIndex = time - timeSlotOffset;
                             const cellId = `${s[0]}-${rowIndex}`;
                             if (!scheduleMap[cellId]) scheduleMap[cellId] = [];
                             scheduleMap[cellId].push({ name: subject.name, code: subjectCode });
