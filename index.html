@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organizador de Grade Horária Configurável</title>
+    <title>Organizador de Grade Horária 2026/1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -289,56 +289,71 @@
     <script id="app-data" type="application/json">
     {
         "subjects": {
-            "G08PCOM1.01": { "name": "Programação de Computadores I", "acronym": "PC I", "semester": 1, "schedule": [["seg", 7, 8]], "prerequisites": [] },
-            "G08CFVR1.01": { "name": "Cálculo com Funções de Uma Variável Real", "acronym": "Cálculo I", "semester": 1, "schedule": [["seg", 9, 10], ["ter", 11, 12], ["sex", 7, 8]], "prerequisites": [] },
-            "G08METC": { "name": "Metodologia Científica", "acronym": "Met. Cient.", "semester": 1, "schedule": [["seg", 11, 12]], "prerequisites": [] },
-            "G0811NSt.01": { "name": "Inglês Instrumental I", "acronym": "Inglês I", "semester": 1, "schedule": [["ter", 7, 8]], "prerequisites": [] },
-            "G08GAAL1.01": { "name": "Geometria Analítica e Álgebra Linear", "acronym": "GAAL", "semester": 1, "schedule": [["ter", 9, 10], ["sex", 9, 10]], "prerequisites": [] },
-            "G08LPC01.01": { "name": "Lab. de Programação de Computadores I", "acronym": "Lab PC I", "semester": 1, "schedule": [["qua", 7, 8]], "prerequisites": [] },
-            "G08CSPBt.01": { "name": "Contexto Social e Profissional do Bacharel em SI", "acronym": "CSPB", "semester": 1, "schedule": [["qui", 7, 8]], "prerequisites": [] },
-            "G08LPTA1.01": { "name": "Leitura e Produção de Textos Acadêmicos", "acronym": "LPTA", "semester": 1, "schedule": [["qui", 9, 10]], "prerequisites": [] },
-            "G08PCOM2.01": { "name": "Programação de Computadores II", "acronym": "PC II", "semester": 2, "schedule": [["sex", 9, 10]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
-            "G08LPC02.01": { "name": "Laboratório de Programação de Computadores II", "acronym": "Lab PC II", "semester": 2, "schedule": [["qui", 9, 10]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
-            "G08CFVV1.01": { "name": "Cálculo com Funções de Várias Variáveis I", "acronym": "Cálculo II", "semester": 2, "schedule": [["seg", 11, 12], ["sex", 7, 8]], "prerequisites": ["G08CFVR1.01"] },
+            "G08METC": { "name": "Metodologia Científica", "acronym": "Met. Cient.", "semester": 1, "schedule": [["seg", 7, 8]], "prerequisites": [] },
+            "G0811NSt.01": { "name": "Inglês Instrumental I", "acronym": "Inglês I", "semester": 1, "schedule": [["seg", 9, 10]], "prerequisites": [] },
+            "G08LPTA1.01": { "name": "Leitura e Produção de Textos Acadêmicos", "acronym": "LPTA", "semester": 1, "schedule": [["seg", 11, 12]], "prerequisites": [] },
+            "G08CSPBt.01": { "name": "Contexto Social e Profissional do Bacharel em SI", "acronym": "CSPB", "semester": 1, "schedule": [["ter", 7, 8]], "prerequisites": [] },
+            "G08CFVR1.01": { "name": "Cálculo com Funções de Uma Variável Real", "acronym": "Cálculo I", "semester": 1, "schedule": [["ter", 9, 10], ["qua", 7, 8], ["qui", 11, 12]], "prerequisites": [] },
+            "G08LPC01.01": { "name": "Lab. de Programação de Computadores I", "acronym": "Lab PC I", "semester": 1, "schedule": [["ter", 11, 12]], "prerequisites": [] },
+            "G08GAAL1.01": { "name": "Geometria Analítica e Álgebra Linear", "acronym": "GAAL", "semester": 1, "schedule": [["qui", 7, 8], ["sex", 9, 10]], "prerequisites": [] },
+            "G08PCOM1.01": { "name": "Programação de Computadores I", "acronym": "PC I", "semester": 1, "schedule": [["qui", 9, 10]], "prerequisites": [] },
+
             "G08BDAD1.01": { "name": "Banco de Dados I", "acronym": "BD I", "semester": 2, "schedule": [["seg", 7, 8]], "prerequisites": [] },
-            "G08LBD1.01": { "name": "Laboratório de Banco de Dados I", "acronym": "Lab BD I", "semester": 2, "schedule": [["ter", 9, 10]], "prerequisites": [] },
-            "G08ISER0.01": { "name": "Integração e Séries", "acronym": "Int. Séries", "semester": 2, "schedule": [["seg", 9, 10], ["qui", 11, 12]], "prerequisites": ["G08CFVR1.01"] },
-            "G08ISOCO.01": { "name": "Informática e Sociedade", "acronym": "InfoSoc", "semester": 2, "schedule": [["qua", 7, 8]], "prerequisites": [] },
-            "G08AOC00.01": { "name": "Arquitetura e Organização de Computadores", "acronym": "AOC", "semester": 2, "schedule": [["ter", 11, 12], ["sex", 11, 12]], "prerequisites": [] },
-            "G08ALIN.03": { "name": "Álgebra Linear", "acronym": "Álgebra", "semester": 3, "schedule": [["ter", 9, 10], ["sex", 9, 10]], "prerequisites": ["G08GAAL1.01"] },
-            "G08BDAD2.03": { "name": "Banco de Dados II", "acronym": "BD II", "semester": 3, "schedule": [["sex", 7, 8]], "prerequisites": ["G08BDAD1.01"] },
-            "G08LBD2.03": { "name": "Laboratório de Banco de Dados II", "acronym": "Lab BD II", "semester": 3, "schedule": [["ter", 11, 12]], "prerequisites": ["G08BDAD1.01", "G08LBD1.01"] },
-            "G08EDO.03": { "name": "Equações Diferenciais Ordinárias", "acronym": "EDO", "semester": 3, "schedule": [["seg", 11, 12], ["qui", 9, 10]], "prerequisites": ["G08CFVV1.01", "G08ISER0.01"] },
-            "G08SOCI.03": { "name": "Introdução à Sociologia", "acronym": "Sociologia", "semester": 3, "schedule": [["sex", 11, 12]], "prerequisites": [] },
-            "G08PCOM3.03": { "name": "Programação de Computadores III", "acronym": "PC III", "semester": 3, "schedule": [["qui", 11, 12]], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
-            "G08LPC03.03": { "name": "Laboratório de Programação de Computadores III", "acronym": "Lab PC III", "semester": 3, "schedule": [["qua", 7, 8]], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
-            "G08MNUM.03": { "name": "Métodos Numéricos", "acronym": "Mét. Num.", "semester": 3, "schedule": [["seg", 9, 10], ["qui", 7, 8]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
-            "G08DINT.04": { "name": "Design de Interação", "acronym": "D. Interação", "semester": 4, "schedule": [["ter", 7, 8], ["sex", 11, 12]], "prerequisites": [] },
-            "G08ESW.04": { "name": "Engenharia de Software", "acronym": "Eng. Soft.", "semester": 4, "schedule": [["qui", 9, 10]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
-            "G08LESW.04": { "name": "Laboratório de Engenharia de Software", "acronym": "Lab Eng. Soft.", "semester": 4, "schedule": [["sex", 9, 10]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
-             "G08ESTAT.04": { "name": "Estatística", "acronym": "Estatística", "semester": 4, "schedule": [["ter", 9, 10], ["qui", 7, 8]], "prerequisites": [] },
-            "G08REDES.04": { "name": "Redes de Computadores", "acronym": "Redes", "semester": 4, "schedule": [["ter", 11, 12], ["qua", 7, 8]], "prerequisites": [] },
-            "G08LREDES.04": { "name": "Laboratório de Redes de Computadores", "acronym": "Lab Redes", "semester": 4, "schedule": [["seg", 11, 12]], "prerequisites": [] },
-            "G08SO.04": { "name": "Sistemas Operacionais", "acronym": "SO", "semester": 4, "schedule": [["seg", 9, 10], ["sex", 7, 8]], "prerequisites": ["G08AOC00.01"] },
-            "G08ED.05": { "name": "Estrutura de Dados", "acronym": "ED", "semester": 5, "schedule": [["qui", 7, 8]], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
-            "G08LED.05": { "name": "Laboratório de Estrutura de Dados", "acronym": "Lab ED", "semester": 5, "schedule": [["sex", 9, 10]], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
-            "G08FILO.05": { "name": "Filosofia da Tecnologia", "acronym": "Filosofia", "semester": 5, "schedule": [["ter", 9, 10]], "prerequisites": [] },
-            "G08LGPR0.01": { "name": "Laboratório de Gerenciamento de Projetos", "acronym": "Lab Ger. Proj.", "semester": 5, "schedule": [["ter", 11, 12]], "prerequisites": ["G08ESW.04", "G08LESW.04"] },           
-            "G08GPROJ.05": { "name": "Gerenciamento de Projetos", "acronym": "Ger. Proj.", "semester": 5, "schedule": [["qui", 9, 10]], "prerequisites": ["G08ESW.04", "G08LESW.04"] },
-            "G08PWEB.05": { "name": "Programação Web", "acronym": "P. Web", "semester": 5, "schedule": [["qua", 7, 8]], "prerequisites": ["G08BDAD2.03", "G08LBD2.03", "G08PCOM3.03", "G08LPC03.03"] },
-            "G08LPWEB.05": { "name": "Laboratório de Programação Web", "acronym": "Lab P. Web", "semester": 5, "schedule": [["seg", 9, 10], ["qui", 11, 12]], "prerequisites": ["G08BDAD2.03", "G08LBD2.03", "G08PCOM3.03", "G08LPC03.03"] },
-            "G08MP.05": { "name": "Metodologia da Pesquisa", "acronym": "Met. Pesq.", "semester": 5, "schedule": [["sex", 7, 8]], "prerequisites": [] },
-            "G08PROB.05": { "name": "Teoria da Probabilidade", "acronym": "Probab.", "semester": 5, "schedule": [["seg", 7, 8], ["ter", 7, 8]], "prerequisites": ["G08ESTAT.04"] },
-            "G08AM.06": { "name": "Análise Multivariada", "acronym": "An. Multiv.", "semester": 6, "schedule": [["seg", 9, 10], ["ter", 11, 12]], "prerequisites": ["G08PROB.05"] },
-            "G08NUVEM.06": { "name": "Computação em Nuvem", "acronym": "Nuvem", "semester": 6, "schedule": [["ter", 9, 10]], "prerequisites": ["G08REDES.04", "G08LREDES.04"] },
-            "G08LNUVEM.06": { "name": "Laboratório de Computação em Nuvem", "acronym": "Lab Nuvem", "semester": 6, "schedule": [["sex", 9, 10]], "prerequisites": ["G08REDES.04", "G08LREDES.04"] },
-            "G08DADM.06": { "name": "Desenvolvimento de Aplicações para Dispositivos Móveis", "acronym": "DADM", "semester": 6, "schedule": [["qui", 7, 8]], "prerequisites": ["G08PWEB.05", "G08LPWEB.05"] },
-            "G08LDADM.06": { "name": "Laboratório de Des. de Aplicações para Disp. Móveis", "acronym": "Lab DADM", "semester": 6, "schedule": [["seg", 7, 8],["sex", 7, 8]], "prerequisites": ["G08PWEB.05", "G08LPWEB.05"] },
-            "G08EMP.06": { "name": "Empreendedorismo", "acronym": "Empreend.", "semester": 6, "schedule": [["ter", 7, 8], ["qua", 7, 8]], "prerequisites": [] },
-            "G08MD.06": { "name": "Matemática Discreta", "acronym": "Mat. Discreta", "semester": 6, "schedule": [["qui", 9, 10], ["sex", 11, 12]], "prerequisites": ["G08PROB.05", "G08PCOM2.01", "G08LPC02.01"] },
-            "OPT.PROTO": { "name": "Opt: Intro a Protótipos e Projetos", "acronym": "Opt. Protótipos", "semester": 7, "schedule": [], "prerequisites": [] },
-            "OPT.COMP": { "name": "Opt: Programação Competitiva", "acronym": "Opt. PC", "semester": 7, "schedule": [], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
-            "OPT.JUST": { "name": "Opt: Tecnologia e Justiça Fiscal", "acronym": "Opt. TJC", "semester": 7, "schedule": [], "prerequisites": [] }
+            "G08AOC00.01": { "name": "Arquitetura e Organização de Computadores", "acronym": "AOC", "semester": 2, "schedule": [["seg", 9, 10], ["qui", 7, 8]], "prerequisites": [] },
+            "G08LPC02.01": { "name": "Laboratório de Programação de Computadores II", "acronym": "Lab PC II", "semester": 2, "schedule": [["seg", 11, 12]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
+            "G08ISOCO.01": { "name": "Informática e Sociedade", "acronym": "InfoSoc", "semester": 2, "schedule": [["ter", 7, 8]], "prerequisites": [] },
+            "G08ISER0.01": { "name": "Integração e Séries", "acronym": "Int. Séries", "semester": 2, "schedule": [["ter", 9, 10], ["sex", 9, 10]], "prerequisites": ["G08CFVR1.01"] },
+            "G08CFVV1.01": { "name": "Cálculo com Funções de Várias Variáveis I", "acronym": "Cálculo II", "semester": 2, "schedule": [["qua", 7, 8], ["qui", 9, 10]], "prerequisites": ["G08CFVR1.01"] },
+            "G08PCOM2.01": { "name": "Programação de Computadores II", "acronym": "PC II", "semester": 2, "schedule": [["qui", 11, 12]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
+            "G08LBD1.01": { "name": "Laboratório de Banco de Dados I", "acronym": "Lab BD I", "semester": 2, "schedule": [["sex", 7, 8]], "prerequisites": [] },
+
+            "G08TEEDS.03": { "name": "Téc. Esp. em Des. de Sistemas", "acronym": "TEeDdS", "semester": 3, "schedule": [["seg", 7, 8]], "prerequisites": [] },
+            "G08MNUM.03": { "name": "Métodos Numéricos", "acronym": "Mét. Num.", "semester": 3, "schedule": [["seg", 9, 10], ["qua", 7, 8]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
+            "G08EDO.03": { "name": "Equações Diferenciais Ordinárias", "acronym": "EDO", "semester": 3, "schedule": [["seg", 11, 12], ["sex", 7, 8]], "prerequisites": ["G08CFVV1.01", "G08ISER0.01"] },
+            "G08LPC03.03": { "name": "Laboratório de Programação de Computadores III", "acronym": "Lab PC III", "semester": 3, "schedule": [["ter", 7, 8], ["ter", 9, 10]], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
+            "G08BDAD2.03": { "name": "Banco de Dados II", "acronym": "BD II", "semester": 3, "schedule": [["qua", 9, 10]], "prerequisites": ["G08BDAD1.01"] },
+            "G08ALIN.03": { "name": "Álgebra Linear", "acronym": "Álgebra", "semester": 3, "schedule": [["qua", 11, 12], ["qui", 7, 8]], "prerequisites": ["G08GAAL1.01"] },
+            "G08LBD2.03": { "name": "Laboratório de Banco de Dados II", "acronym": "Lab BD II", "semester": 3, "schedule": [["qui", 9, 10], ["sex", 11, 12]], "prerequisites": ["G08BDAD1.01", "G08LBD1.01"] },
+            "G08PCOM3.03": { "name": "Programação de Computadores III", "acronym": "PC III", "semester": 3, "schedule": [["sex", 9, 10]], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
+
+            "G08SO.04": { "name": "Sistemas Operacionais", "acronym": "SO", "semester": 4, "schedule": [["seg", 7, 8]], "prerequisites": ["G08AOC00.01"] },
+            "G08LESW.04": { "name": "Laboratório de Engenharia de Software", "acronym": "Lab Eng. Soft.", "semester": 4, "schedule": [["ter", 7, 8]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
+            "G08ESTAT.04": { "name": "Estatística", "acronym": "Estatística", "semester": 4, "schedule": [["ter", 11, 12], ["sex", 11, 12]], "prerequisites": [] },
+            "G08LREDES.04": { "name": "Laboratório de Redes de Computadores", "acronym": "Lab Redes", "semester": 4, "schedule": [["qua", 7, 8]], "prerequisites": [] },
+            "G08DINT.04": { "name": "Design de Interação", "acronym": "D. Interação", "semester": 4, "schedule": [["qua", 11, 12], ["qui", 7, 8]], "prerequisites": [] },
+            "G08ESW.04": { "name": "Engenharia de Software", "acronym": "Eng. Soft.", "semester": 4, "schedule": [["qui", 11, 12]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
+            "G08REDES.04": { "name": "Redes de Computadores", "acronym": "Redes", "semester": 4, "schedule": [["sex", 7, 8]], "prerequisites": [] },
+
+            "G08GPROJ.05": { "name": "Gerenciamento de Projetos", "acronym": "Ger. Proj.", "semester": 5, "schedule": [["seg", 5, 6]], "prerequisites": ["G08ESW.04", "G08LESW.04"] },
+            "G08PROB.05": { "name": "Teoria da Probabilidade", "acronym": "Probab.", "semester": 5, "schedule": [["ter", 1, 2], ["qui", 1, 2]], "prerequisites": ["G08ESTAT.04"] },
+            "G08FILO.05": { "name": "Filosofia da Tecnologia", "acronym": "Filosofia", "semester": 5, "schedule": [["ter", 3, 4]], "prerequisites": [] },
+            "G08LPWEB.05": { "name": "Laboratório de Programação Web", "acronym": "Lab P. Web", "semester": 5, "schedule": [["ter", 5, 6], ["sex", 3, 4]], "prerequisites": ["G08BDAD2.03", "G08LBD2.03", "G08PCOM3.03", "G08LPC03.03"] },
+            "G08LGPR0.01": { "name": "Laboratório de Gerenciamento de Projetos", "acronym": "Lab Ger. Proj.", "semester": 5, "schedule": [["qua", 5, 6]], "prerequisites": ["G08ESW.04", "G08LESW.04"] },
+            "G08MP.05": { "name": "Metodologia da Pesquisa", "acronym": "Met. Pesq.", "semester": 5, "schedule": [["qui", 3, 4]], "prerequisites": [] },
+            "G08PWEB.05": { "name": "Programação Web", "acronym": "P. Web", "semester": 5, "schedule": [["qui", 5, 6]], "prerequisites": ["G08BDAD2.03", "G08LBD2.03", "G08PCOM3.03", "G08LPC03.03"] },
+            "OPT.PROTO": { "name": "Opt: Intro a Protótipos e Projetos", "acronym": "Opt. Protótipos", "semester": 5, "schedule": [["sex", 1, 2]], "prerequisites": [] },
+            "G08ED.05": { "name": "Estrutura de Dados", "acronym": "ED", "semester": 5, "schedule": [["sex", 5, 5]], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
+            "G08LED.05": { "name": "Laboratório de Estrutura de Dados", "acronym": "Lab ED", "semester": 5, "schedule": [["sex", 6, 6]], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
+
+            "G08EMP.06": { "name": "Empreendedorismo I", "acronym": "Empreend. I", "semester": 6, "schedule": [["seg", 1, 2], ["sex", 3, 4]], "prerequisites": [] },
+            "G08NUVEM.06": { "name": "Computação em Nuvem", "acronym": "Nuvem", "semester": 6, "schedule": [["seg", 3, 4]], "prerequisites": ["G08REDES.04", "G08LREDES.04"] },
+            "G08AM.06": { "name": "Análise Multivariada", "acronym": "An. Multiv.", "semester": 6, "schedule": [["seg", 5, 6], ["ter", 1, 2]], "prerequisites": ["G08PROB.05"] },
+            "G08LDADM.06": { "name": "Laboratório de Des. de Aplicações para Disp. Móveis", "acronym": "Lab DADM", "semester": 6, "schedule": [["ter", 3, 4], ["sex", 5, 6]], "prerequisites": ["G08PWEB.05", "G08LPWEB.05"] },
+            "G08LNUVEM.06": { "name": "Laboratório de Computação em Nuvem", "acronym": "Lab Nuvem", "semester": 6, "schedule": [["qua", 1, 2]], "prerequisites": ["G08REDES.04", "G08LREDES.04"] },
+            "G08DADM.06": { "name": "Desenvolvimento de Aplicações para Dispositivos Móveis", "acronym": "DADM", "semester": 6, "schedule": [["qui", 1, 2]], "prerequisites": ["G08PWEB.05", "G08LPWEB.05"] },
+            "G08MD.06": { "name": "Matemática Discreta", "acronym": "Mat. Discreta", "semester": 6, "schedule": [["qui", 3, 4], ["sex", 1, 2]], "prerequisites": ["G08PROB.05", "G08PCOM2.01", "G08LPC02.01"] },
+
+            "G08LMD.07": { "name": "Lab. Mineração de Dados", "acronym": "Lab Min. Dad.", "semester": 7, "schedule": [["seg", 7, 8]], "prerequisites": ["G08BDAD2.03", "G08ESTAT.04"] },
+            "G08EMP2.07": { "name": "Empreendedorismo II", "acronym": "Emp II", "semester": 7, "schedule": [["seg", 9, 10], ["ter", 9, 10]], "prerequisites": ["G08EMP.06"] },
+            "G08LLP.07": { "name": "Lab. Linguagens de Programação", "acronym": "Lab Lings", "semester": 7, "schedule": [["seg", 11, 12]], "prerequisites": ["G08PCOM3.03"] },
+            "G08ECO.07": { "name": "Engenharia Econômica", "acronym": "Eng. Eco.", "semester": 7, "schedule": [["ter", 7, 8]], "prerequisites": [] },
+            "G08IA.07": { "name": "Inteligência Artificial", "acronym": "IA", "semester": 7, "schedule": [["qua", 7, 8], ["sex", 9, 10]], "prerequisites": ["G08ED.05", "G08PROB.05"] },
+            "G08MD.07": { "name": "Mineração de Dados", "acronym": "Min. Dad.", "semester": 7, "schedule": [["qui", 7, 8]], "prerequisites": ["G08BDAD2.03", "G08ESTAT.04"] },
+            "G08LIA.07": { "name": "Lab. Inteligência Artificial", "acronym": "Lab IA", "semester": 7, "schedule": [["qui", 9, 10]], "prerequisites": ["G08ED.05", "G08PROB.05"] },
+            "G08LP.07": { "name": "Linguagens de Programação", "acronym": "Lings Prog", "semester": 7, "schedule": [["sex", 7, 8]], "prerequisites": ["G08PCOM3.03"] },
+            
+            "OPT.COMP": { "name": "Opt: Programação Competitiva", "acronym": "Opt. PC", "semester": 8, "schedule": [], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
+            "OPT.JUST": { "name": "Opt: Tecnologia e Justiça Fiscal", "acronym": "Opt. TJC", "semester": 8, "schedule": [], "prerequisites": [] }
         }
     }
     </script>
@@ -414,6 +429,7 @@
                             <div class="custom-option" data-value="4">4º Semestre</div>
                             <div class="custom-option" data-value="5">5º Semestre</div>
                             <div class="custom-option" data-value="6">6º Semestre</div>
+                            <div class="custom-option" data-value="7">7º Semestre</div>
                         </div>
                     </div>
                 </div>
@@ -511,9 +527,17 @@
         let studentStatus = {};
 
         // --- CONSTANTES E VARIÁVEIS GLOBAIS ---
-        const allTimeSlots = [ "7:00-7:50", "7:50-8:40", "9:00-9:50", "9:50-10:40", "10:50-11:40", "11:40-12:30", "13:00-13:50", "13:50-14:40", "14:40-15:30", "15:50-16:40", "16:40-17:30", "17:40-18:30", "19:00-19:50" ];
-        const displayTimeSlots = [ "11:40-12:30", "13:00-13:50", "13:50-14:40", "14:40-15:30", "15:50-16:40", "16:40-17:30", "17:40-18:30", "19:00-19:50" ];
-        const timeSlotOffset = 6; // O primeiro horário (11:40) é o 6º na lista geral (índice 5)
+        const allTimeSlots = [ 
+            "7:00-7:50", "7:50-8:40", "9:00-9:50", "9:50-10:40", "10:50-11:40", "11:40-12:30", // Manhã (1-6)
+            "13:00-13:50", "13:50-14:40", "14:40-15:30", "15:50-16:40", "16:40-17:30", "17:40-18:30", // Tarde (7-12)
+            "19:00-19:50", "19:50-20:40", "20:50-21:40", "21:40-22:30", "22:30-23:20" // Noite (13-17)
+        ];
+        // Garantindo que a tabela mostre TODOS os horários possíveis para evitar bugs visuais
+        const displayTimeSlots = [ 
+            "07:00-07:50", "07:50-08:40", "09:00-09:50", "09:50-10:40", "10:50-11:40", "11:40-12:30",
+            "13:00-13:50", "13:50-14:40", "14:40-15:30", "15:50-16:40", "16:40-17:30", "17:40-18:30",
+            "19:00-19:50", "19:50-20:40", "20:50-21:40", "21:40-22:30", "22:30-23:20"
+        ];
         
         const days = { 'seg': 'Segunda', 'ter': 'Terça', 'qua': 'Quarta', 'qui': 'Quinta', 'sex': 'Sexta' };
         const dayOrder = ['seg', 'ter', 'qua', 'qui', 'sex'];
@@ -571,8 +595,12 @@
                 if (savedState && savedState.studentStatus && Object.keys(savedState.studentStatus).length > 0) {
                     studentStatus = savedState.studentStatus;
                     Object.keys(studentStatus).forEach(student => {
-                        studentSelections[student] = new Set(savedState.selections?.[student] || []);
-                        simulatedApprovals[student] = new Set(savedState.simulations?.[student] || []);
+                        // Filtra seleções antigas para evitar bugs se a matéria não existir mais
+                        const validSelections = (savedState.selections?.[student] || []).filter(code => subjects[code]);
+                        studentSelections[student] = new Set(validSelections);
+                        
+                        const validSimulations = (savedState.simulations?.[student] || []).filter(code => subjects[code]);
+                        simulatedApprovals[student] = new Set(validSimulations);
                     });
                     return true;
                 }
@@ -791,7 +819,7 @@
                 <div class="flex justify-between items-start mb-4">
                     <div class="text-left">
                         <h1 class="text-3xl md:text-4xl font-bold">Organizador de Grade Horária 📚</h1>
-                        <p class="text-secondary mt-2">CEFET/MG - Unidade Varginha</p>
+                        <p class="text-secondary mt-2">CEFET/MG - Unidade Varginha (2026/1)</p>
                         <p class="text-xs text-gray-400 mt-1">Desenvolvido por: Antônio Prado Horta</p>
                         <button id="donate-button" class="text-xs p-2 rounded-md mt-2">Gostou e te ajudou? Que tal um café para o dev? ☕</button>
                     </div>
@@ -801,7 +829,7 @@
                         <button id="reset-app-btn" title="Resetar / Sair" class="w-10 h-10 bg-gray-700/50 rounded-full flex items-center justify-center text-red-400 hover:bg-gray-700/80 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                         </button>
-        
+       
                         <button id="help-button" title="Ajuda" class="w-10 h-10 bg-gray-700/50 rounded-full flex items-center justify-center text-indigo-300 hover:bg-gray-700/80 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         </button>
@@ -821,7 +849,6 @@
         }
         
         function buildContentPaneHTML(studentName) {
-            const displayTimeSlots = [ "11:40-12:30", "13:00-13:50", "13:50-14:40", "14:40-15:30", "15:50-16:40", "16:40-17:30", "17:40-18:30", "19:00-19:50" ];
             
             if (studentName === 'Grupo') {
                 const groupMembers = Object.keys(studentStatus);
@@ -853,7 +880,7 @@
                         </div>
                         <div class="flex-grow flex flex-wrap justify-center items-center gap-2">
                              <p class="font-semibold text-secondary hidden md:block">Filtrar por Semestre:</p>
-                            ${[1, 2, 3, 4, 5, 6, 7].map(s => `<button data-value="${s}" class="filter-button active px-3 py-1 rounded-md text-sm">${s < 7 ? s+'º' : 'Opt'}</button>`).join('')}
+                            ${[1, 2, 3, 4, 5, 6, 7, 8].map(s => `<button data-value="${s}" class="filter-button active px-3 py-1 rounded-md text-sm">${s <= 7 ? s+'º' : 'Opt'}</button>`).join('')}
                         </div>
                     </div>`;
                 const accordionHTML = `
@@ -872,6 +899,7 @@
                         </div>
                     </div>`;
                 let tableHeader = `<tr><th class="w-24">Horário</th>${Object.values(days).map(day => `<th>${day}</th>`).join('')}</tr>`;
+                // Use displayTimeSlots for the rows
                 let tableBody = displayTimeSlots.map((slot, i) => `<tr><td class="font-medium text-secondary">${slot}</td>${Object.keys(days).map(dayKey => `<td id="${studentName}-${dayKey}-${i}">&nbsp;</td>`).join('')}</tr>`).join('');
                 const scheduleHTML = `<div class="mt-10">
                     <div class="flex justify-center items-center mb-4 gap-4">
@@ -1116,12 +1144,17 @@
 
         function checkPrerequisites(approvedSet, subjectCode) {
             const subject = subjects[subjectCode];
+            // Proteção contra erro se o código não existir na base atual
+            if (!subject) return true; 
+
             if (!subject.prerequisites || subject.prerequisites.length === 0) return true;
             return subject.prerequisites.every(prereqCode => approvedSet.has(prereqCode));
         }
 
         function createSubjectCard(studentName, subjectCode, approvedForThisSimulation, initiallyApproved) {
             const subject = subjects[subjectCode];
+            if (!subject) return ''; // Proteção contra erro
+            
             const studentOwnStatus = studentStatus[studentName]?.[subjectCode];
             
             const isRetake = studentOwnStatus === 'REPRO';
@@ -1145,7 +1178,15 @@
             }
 
             const scheduleString = subject.schedule.length > 0
-                ? subject.schedule.map(s => `${days[s[0]].substring(0,3)}. ${allTimeSlots[s[1]-1].split('-')[0]}-${allTimeSlots[s[2]-1].split('-')[1]}`).join(' / ')
+                ? subject.schedule.map(s => {
+                    const slot = s[1];
+                    const dayName = days[s[0]].substring(0,3);
+                    const slotIndex = slot - 1; // 1-based to 0-based
+                    if (slotIndex >= 0 && slotIndex < allTimeSlots.length) {
+                        return `${dayName}. ${allTimeSlots[slotIndex].split('-')[0]}`;
+                    }
+                    return '???';
+                }).join(' / ')
                 : 'Horário a definir';
             
             const checkboxHTML = showCheckbox ? `<input type="checkbox" data-student="${studentName}" data-subject="${subjectCode}" class="custom-checkbox schedule-checkbox" ${isChecked ? 'checked' : ''}>` : '<div class="w-6 h-6"></div>';
@@ -1196,7 +1237,7 @@
                     container.innerHTML = `<p class="text-secondary text-center p-4">Nenhuma matéria nesta categoria.</p>`;
                 } else {
                     semesters.forEach(semester => {
-                        let semesterLabel = semester < 7 ? `${semester}º Semestre` : 'Optativas';
+                        let semesterLabel = semester <= 7 ? `${semester}º Semestre` : 'Optativas';
                         let semesterGroupHTML = `<div class="semester-group mb-6" data-semester="${semester}"><h4 class="font-bold text-lg mb-3 text-secondary border-b border-gray-700 pb-2">${semesterLabel}</h4><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
                         classifiedSubjects[category][semester].forEach(code => {
                             semesterGroupHTML += createSubjectCard(studentName, code, approvedForThisSimulation, initiallyApproved);
@@ -1255,16 +1296,26 @@
             const scheduleMap = {};
             const conflictingSubjectCodes = new Set();
             const conflictDetails = {};
-            const timeSlotOffset = 6;
+            // Agora o offset é 1 para mapear Slot 1 -> Indice 0 do allTimeSlots
+            const scheduleOffset = 1; 
+
+            // Para exibir na tabela, precisamos mapear os slots (1 a 17) para as linhas da tabela (0 a 16)
             
             checkboxes.forEach(cb => {
                 const subjectCode = cb.dataset.subject;
                 const subject = subjects[subjectCode];
+                if (!subject) return; // Proteção
+
                 subject.schedule.forEach(s => {
-                    for (let time = s[1]; time <= s[2]; time++) {
-                        if (time > timeSlotOffset) {
-                            const rowIndex = time - timeSlotOffset;
-                            const cellId = `${s[0]}-${rowIndex}`;
+                    const day = s[0];
+                    const startSlot = s[1];
+                    const endSlot = s[2];
+                    
+                    for (let slot = startSlot; slot <= endSlot; slot++) {
+                        let tableRowIndex = slot - 1; // 1-based to 0-based
+                        
+                        if (tableRowIndex >= 0 && tableRowIndex < displayTimeSlots.length) {
+                            const cellId = `${day}-${tableRowIndex}`;
                             if (!scheduleMap[cellId]) scheduleMap[cellId] = [];
                             scheduleMap[cellId].push({ name: subject.name, code: subjectCode });
                         }
