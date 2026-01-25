@@ -22,6 +22,9 @@
             --hour-height: 60px;
             --scrollbar-bg: #f1f5f9;
             --scrollbar-thumb: #cbd5e1;
+            
+            /* Esquema padrão */
+            color-scheme: light;
         }
 
         /* TEMA ESCURO */
@@ -40,9 +43,11 @@
             
             --scrollbar-bg: #0f172a;
             --scrollbar-thumb: #475569;
+            
+            color-scheme: dark;
         }
 
-        /* Scrollbar */
+        /* Scrollbar Personalizada */
         ::-webkit-scrollbar { width: 10px; height: 10px; }
         ::-webkit-scrollbar-track { background: var(--scrollbar-bg); }
         ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 5px; border: 2px solid var(--scrollbar-bg); }
@@ -64,7 +69,7 @@
         }
         h1 { color: var(--primary-color); margin-bottom: 0.5rem; font-size: 1.8rem; }
 
-        /* Controles de Topo (Checkboxes) */
+        /* Controles de Topo */
         .top-controls {
             display: flex;
             justify-content: center;
@@ -87,16 +92,102 @@
             transition: all 0.2s;
         }
         .toggle-label:hover { border-color: var(--primary-color); }
-        .toggle-label input { accent-color: var(--primary-color); width: 16px; height: 16px; }
+        
+        /* ESTILO PERSONALIZADO PARA CHECKBOXES (Corrige fundo branco no dark mode) */
+        input[type="checkbox"] {
+            appearance: none; /* Remove estilo padrão do navegador */
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--card-bg); /* Usa a cor do card (escuro no dark mode) */
+            cursor: pointer;
+            position: relative;
+            display: grid;
+            place-content: center;
+            transition: all 0.2s;
+        }
 
-        /* ABAS */
+        input[type="checkbox"]:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        input[type="checkbox"]:checked::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+        
+        input[type="checkbox"]:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: var(--locked-bg);
+        }
+
+        /* ABAS (Estrutura Corrigida para o botão X) */
         .tabs-container { display: flex; gap: 10px; margin-bottom: 0; padding: 0 10px; overflow-x: auto; padding-bottom: 5px; }
-        .tab-btn { background: var(--card-bg); border: 1px solid var(--border-color); border-bottom: none; padding: 10px 20px; border-radius: 10px 10px 0 0; cursor: pointer; font-weight: 600; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; transition: all 0.2s; min-width: 120px; justify-content: center; position: relative; opacity: 0.7; }
-        .tab-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); opacity: 1; transform: translateY(-2px); box-shadow: 0 -2px 5px rgba(0,0,0,0.1); z-index: 10; }
-        .tab-btn:hover:not(.active) { background: var(--bg-color); opacity: 1; }
-        .tab-close { font-size: 0.8rem; margin-left: 5px; opacity: 0.6; border-radius: 50%; padding: 2px; }
-        .tab-close:hover { background: rgba(0,0,0,0.2); opacity: 1; }
-        .add-tab-btn { background: transparent; border: 2px dashed var(--border-color); color: var(--text-secondary); }
+        
+        .tab-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
+            transition: all 0.2s;
+            opacity: 0.7;
+        }
+        
+        .tab-wrapper.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            opacity: 1;
+            transform: translateY(-2px);
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+        
+        .tab-wrapper.active .tab-name { color: white; }
+        .tab-wrapper.active .tab-close { color: rgba(255,255,255,0.7); }
+        .tab-wrapper.active .tab-close:hover { background: rgba(255,255,255,0.2); color: white; }
+
+        .tab-name {
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        
+        .tab-close {
+            padding: 10px 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .tab-close:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+
+        .add-tab-btn { 
+            background: transparent; 
+            border: 2px dashed var(--border-color); 
+            color: var(--text-secondary);
+            border-radius: 10px 10px 0 0;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-weight: 600;
+        }
         .add-tab-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
 
         /* Ferramentas */
@@ -109,6 +200,8 @@
         .btn-secondary:hover { background-color: var(--bg-color); color: var(--text-main); }
         .btn-outline { background: transparent; border: 2px solid var(--primary-color); color: var(--primary-color); }
         .btn-outline:hover { background: var(--primary-color); color: white; }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-danger:hover { opacity: 0.9; }
 
         #jsonInput, #paste-area-container { display: none; }
         #paste-textarea { width: 100%; height: 100px; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); }
@@ -142,7 +235,6 @@
         .locked-badge { margin-right: 5px; font-size: 0.8rem; }
 
         .checkbox-wrapper { margin-right: 10px; display: flex; align-items: center; }
-        input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary-color); }
 
         .calendar-container { background: var(--card-bg); border-radius: 1rem; box-shadow: var(--shadow); overflow-x: auto; position: relative; height: 900px; display: flex; border: 1px solid var(--border-color); z-index: 1; }
         .time-labels { width: 60px; flex-shrink: 0; background: var(--bg-color); border-right: 1px solid var(--border-color); position: sticky; left: 0; z-index: 10; }
@@ -170,10 +262,10 @@
         .conflict-alert { background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; display: none; border-left: 4px solid var(--danger-color); animation: shake 0.5s; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
-        /* MODAL */
+        /* MODAIS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .modal-overlay.active { opacity: 1; visibility: visible; }
-        .modal-content { background: var(--card-bg); color: var(--text-main); padding: 2.5rem; border-radius: 1rem; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; text-align: center; transform: scale(0.95); transition: transform 0.3s; border: 1px solid var(--border-color); }
+        .modal-content { background: var(--card-bg); color: var(--text-main); padding: 2.5rem; border-radius: 1rem; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; text-align: center; transform: scale(0.95); transition: transform 0.3s; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
         .modal-overlay.active .modal-content { transform: scale(1); }
         .modal-title { font-size: 1.8rem; color: var(--text-main); margin-bottom: 1rem; }
         .modal-options { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
@@ -208,10 +300,11 @@
 </head>
 <body>
 
-    <!-- MODAL PRINCIPAL -->
+    <!-- MODAL PRINCIPAL (Boas-vindas / Perfil / Adicionar Amigo) -->
     <div id="welcome-modal" class="modal-overlay">
         <div class="modal-content">
-            <!-- Etapa 0: Nome -->
+            
+            <!-- Etapa 0: Nome (Novo Amigo) -->
             <div id="modal-step-0" style="display: none;">
                 <div class="modal-title">Novo Perfil</div>
                 <p>Qual é o nome do seu amigo(a)?</p>
@@ -242,7 +335,7 @@
                 </div>
             </div>
 
-            <!-- Etapa 2: Histórico -->
+            <!-- Etapa 2: Histórico (Veterano) -->
             <div id="modal-step-2" style="display: none;">
                 <div class="modal-title">🎓 Histórico Escolar</div>
                 <p>Clique nas matérias para mudar o status:</p>
@@ -253,6 +346,18 @@
                 <div style="margin-top: 2rem;">
                     <button class="btn btn-primary" onclick="finishVeteranSetup()">✅ Confirmar Histórico</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMAÇÃO (Novo!) -->
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-title" style="font-size: 1.4rem;">⚠️ Confirmação</div>
+            <p id="confirm-text">Tem certeza?</p>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="closeConfirmModal()">Cancelar</button>
+                <button id="confirm-yes-btn" class="btn btn-danger">Sim, Remover</button>
             </div>
         </div>
     </div>
@@ -477,16 +582,32 @@
             updateSchedule();
         }
 
-        function deleteProfile(profileId, e) {
-            e.stopPropagation();
-            if(confirm("Tem certeza que deseja remover este perfil?")) {
+        function deleteProfile(profileId) {
+            // Abre o Modal de Confirmação em vez do confirm() nativo
+            openConfirmModal("Tem certeza que deseja remover este amigo?", () => {
+                const indexToRemove = appState.profiles.findIndex(p => p.id === profileId);
+                const isActive = (profileId === appState.activeProfileId);
+                
+                // Remove o perfil
                 appState.profiles = appState.profiles.filter(p => p.id !== profileId);
+                
+                // Se não sobrou nenhum, cria um padrão
                 if(appState.profiles.length === 0) {
                     createNewProfile("Você");
                 } else {
-                    switchProfile(appState.profiles[0].id);
+                    // Se deletou o ativo, muda para o anterior (ou o primeiro)
+                    if(isActive) {
+                        const newIndex = Math.max(0, indexToRemove - 1);
+                        switchProfile(appState.profiles[newIndex].id);
+                    } else {
+                        // Se deletou outro, só atualiza as abas e salva
+                        saveAppState();
+                        renderTabs();
+                        // Se estiver no modo grupo, precisa redesenhar a grade pois um perfil sumiu
+                        if(appState.groupMode) updateSchedule();
+                    }
                 }
-            }
+            });
         }
 
         function renderTabs() {
@@ -494,18 +615,34 @@
             container.innerHTML = '';
 
             appState.profiles.forEach(profile => {
-                const btn = document.createElement('button');
-                btn.className = `tab-btn ${profile.id === appState.activeProfileId ? 'active' : ''}`;
-                btn.innerHTML = `
-                    👤 ${profile.name}
-                    ${appState.profiles.length > 1 ? `<span class="tab-close" onclick="deleteProfile(${profile.id}, event)">✕</span>` : ''}
-                `;
-                btn.onclick = () => switchProfile(profile.id);
-                container.appendChild(btn);
+                // Estrutura mudada para div.tab-wrapper para evitar conflitos de clique
+                const wrapper = document.createElement('div');
+                wrapper.className = `tab-wrapper ${profile.id === appState.activeProfileId ? 'active' : ''}`;
+                
+                // Parte do Nome (Seleciona)
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'tab-name';
+                nameDiv.textContent = `👤 ${profile.name}`;
+                nameDiv.onclick = () => switchProfile(profile.id);
+                wrapper.appendChild(nameDiv);
+
+                // Parte do Fechar (Deleta)
+                if (appState.profiles.length > 1) {
+                    const closeDiv = document.createElement('div');
+                    closeDiv.className = 'tab-close';
+                    closeDiv.textContent = '✕';
+                    closeDiv.onclick = (e) => {
+                        e.stopPropagation(); // Garante que não selecione a aba ao fechar
+                        deleteProfile(profile.id);
+                    };
+                    wrapper.appendChild(closeDiv);
+                }
+                
+                container.appendChild(wrapper);
             });
 
             const addBtn = document.createElement('button');
-            addBtn.className = 'tab-btn add-tab-btn';
+            addBtn.className = 'add-tab-btn';
             addBtn.innerHTML = '➕ Amigo';
             addBtn.onclick = () => showAddFriendModal();
             container.appendChild(addBtn);
@@ -513,6 +650,32 @@
 
         function getActiveProfile() {
             return appState.profiles.find(p => p.id === appState.activeProfileId) || appState.profiles[0];
+        }
+
+        // ==========================================
+        // SISTEMA DE CONFIRMAÇÃO (Novo Modal)
+        // ==========================================
+        let pendingConfirmAction = null;
+
+        function openConfirmModal(message, onConfirm) {
+            const modal = document.getElementById('confirm-modal');
+            const text = document.getElementById('confirm-text');
+            const btnYes = document.getElementById('confirm-yes-btn');
+            
+            text.textContent = message;
+            pendingConfirmAction = onConfirm;
+            
+            modal.classList.add('active');
+            
+            btnYes.onclick = () => {
+                if(pendingConfirmAction) pendingConfirmAction();
+                closeConfirmModal();
+            };
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').classList.remove('active');
+            pendingConfirmAction = null;
         }
 
         // ==========================================
@@ -669,10 +832,10 @@
         }
 
         function resetAllData() {
-            if(confirm("ATENÇÃO: Isso apagará TODOS os perfis e dados salvos.")) {
+            openConfirmModal("ATENÇÃO: Isso apagará TODOS os perfis e dados salvos.", () => {
                 localStorage.removeItem('gradeOrganizer_v2');
                 location.reload();
-            }
+            });
         }
 
         // ==========================================
