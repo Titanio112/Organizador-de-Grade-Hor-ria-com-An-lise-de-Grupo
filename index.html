@@ -1,1467 +1,1039 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organizador de Grade Horária 2026/1</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <title>Organizador de Grade Horária - BSI</title>
     <style>
         :root {
-            --bg-color: #111827;
-            --text-color-primary: #f9fafb;
-            --text-color-secondary: #d1d5db;
-            --container-bg: rgba(31, 41, 55, 0.6);
-            --card-bg: rgba(55, 65, 81, 0.5);
-            --tab-active-bg: #6366f1;
-            --tab-inactive-bg: rgba(55, 65, 81, 0.4);
-            --tab-border: #4b5563;
-            --card-aprovado-border: #4ade80;
-            --card-reprovado-border: #f87171;
-            --card-refazer-border: #fcd34d;
-            --table-header-bg: rgba(75, 85, 99, 0.5);
-            --table-border: #4b5563;
-            --filled-slot-bg: #312e81;
-            --conflict-border: #ef4444;
-            --simulated-overlay: rgba(74, 222, 128, 0.2);
-            --setup-card-bg: rgba(55, 65, 81, 0.5);
-            --setup-card-hover-bg: rgba(75, 85, 99, 0.8);
-            --setup-card-selected-border: #6366f1;
-            --button-primary-bg: #4ade80;
-            --button-primary-hover-bg: #22c55e;
+            /* Variáveis de Cor (Tema Claro) */
+            --primary-color: #2563eb;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --success-color: #22c55e;
+            --danger-color: #ef4444;
+            --locked-bg: #f1f5f9;
+            --locked-text: #94a3b8;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            
+            --hour-height: 60px;
+            --scrollbar-bg: #f1f5f9;
+            --scrollbar-thumb: #cbd5e1;
         }
 
-        @keyframes neon-pulse {
-            0%, 100% { box-shadow: 0 0 6px 2px rgba(239, 68, 68, 0.7); }
-            50% { box-shadow: 0 0 14px 4px rgba(239, 68, 68, 0.9); }
+        /* TEMA ESCURO */
+        body.dark-mode {
+            --primary-color: #60a5fa;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --success-color: #4ade80;
+            --danger-color: #f87171;
+            --locked-bg: #334155;
+            --locked-text: #64748b;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+            
+            --scrollbar-bg: #0f172a;
+            --scrollbar-thumb: #475569;
         }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-image: linear-gradient(to top, #09203f 0%, #537895 100%);
-            background-attachment: fixed;
-            color: var(--text-color-primary);
-            transition: padding 0.3s ease-in-out;
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: var(--scrollbar-bg); }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 5px; border: 2px solid var(--scrollbar-bg); }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.5; padding: 20px; transition: background-color 0.3s, color 0.3s; }
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        /* Cabeçalho */
+        header { 
+            text-align: center; 
+            margin-bottom: 2rem; 
+            padding: 2rem; 
+            background: var(--card-bg); 
+            border-radius: 1rem; 
+            box-shadow: var(--shadow); 
+            border-top: 5px solid var(--primary-color); 
+            position: relative;
         }
-        body.is-setting-up {
+        h1 { color: var(--primary-color); margin-bottom: 0.5rem; font-size: 1.8rem; }
+
+        /* Controles de Topo (Checkboxes) */
+        .top-controls {
             display: flex;
-            align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            padding: 1rem;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
         }
-        .main-container, .setup-container-wrapper {
-            background-color: var(--container-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .text-secondary { color: var(--text-color-secondary); }
-        .tab-active { background-color: var(--tab-active-bg); color: var(--text-color-primary); }
-        .tab-inactive { background-color: var(--tab-inactive-bg); color: var(--text-color-secondary); }
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.2s ease-in-out;
-            position: relative;
-        }
-        .card-aprovado { border-left: 5px solid var(--card-aprovado-border); }
-        .card-reprovado { border-left: 5px solid var(--card-reprovado-border); }
-        .card-refazer { border-left: 5px solid var(--card-refazer-border); }
-        .card-conflict {
-            animation: neon-pulse 1.2s infinite ease-in-out;
-            border-color: var(--conflict-border);
-        }
-        .card.simulated-pass::after {
-            content: 'APROVADO (SIMULAÇÃO)';
-            position: absolute;
-            inset: 0;
-            background-color: var(--simulated-overlay);
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; color: var(--card-aprovado-border);
-            border-radius: 0.5rem; pointer-events: none;
-            font-size: 0.75rem; text-align: center; padding: 0.25rem;
-        }
-        .schedule-table {
-            background-color: var(--card-bg);
-            border-radius: 0.5rem; overflow: hidden; table-layout: fixed;
-        }
-        .schedule-table th, .schedule-table td {
-            border: 1px solid var(--table-border); text-align: center; padding: 0.5rem 0.25rem;
-            font-size: 0.7rem; min-width: 75px; word-break: break-word;
-            hyphens: auto; line-height: 1.3;
-        }
-        .schedule-table th { background-color: var(--table-header-bg); }
-        .schedule-conflict { background-color: #ef4444 !important; color: white; font-weight: bold; cursor: help; }
-        .filled-slot { background-color: var(--filled-slot-bg); }
 
-        .setup-card {
-            background-color: var(--setup-card-bg);
-            border: 2px solid transparent;
-            transition: all 0.2s ease-in-out;
-            cursor: pointer;
-        }
-        .setup-card:hover {
-            background-color: var(--setup-card-hover-bg);
-            transform: translateY(-5px);
-        }
-        .form-input {
-            background-color: rgba(31, 41, 55, 0.7);
-            border: 1px solid #4b5563;
-            border-radius: 0.5rem;
-            padding: 0.75rem 1rem;
-            width: 100%;
-            transition: all 0.2s;
-        }
-        .form-input:focus {
-            outline: none;
-            border-color: var(--setup-card-selected-border);
-            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5);
-        }
-        .btn-primary {
-            background-color: var(--button-primary-bg);
-            color: #1f2937;
-            font-weight: bold;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            transition: background-color 0.2s;
-        }
-        .btn-primary:hover:not(:disabled) {
-            background-color: var(--button-primary-hover-bg);
-        }
-        .subjects-list {
-            background-color: rgba(17, 24, 39, 0.5);
-            max-height: 250px;
-        }
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
-            padding: 0 1rem;
-        }
-        .modal-overlay {
-            transition: opacity 0.2s ease-in-out;
-        }
-        .modal-content {
-            transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
-        }
-        .modal-overlay.active, .modal-content.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .modal-content.active {
-            transform: translate(-50%, -50%) scale(1);
-        }
-        #conflict-sidebar {
-            transform: translateX(100%);
-            transition: transform 0.3s ease-in-out;
-            border-top-left-radius: 1rem;
-            border-bottom-left-radius: 1rem;
-        }
-        #conflict-sidebar.open {
-            transform: translateX(0);
-        }
-        .filter-button {
-            background-color: var(--tab-inactive-bg);
-            border: 1px solid var(--tab-border);
-            transition: all 0.2s;
-        }
-        .filter-button.active {
-            background-color: var(--tab-active-bg);
-            color: var(--text-color-primary);
-            border-color: var(--tab-active-bg);
-            box-shadow: 0 0 8px rgba(99, 102, 241, 0.7);
-        }
-        .custom-checkbox {
-            cursor: pointer;
-            width: 1.5rem;
-            height: 1.5rem;
-            appearance: none;
-            background-color: rgba(31, 41, 55, 0.5);
-            border: 1px solid #4b5563;
-            border-radius: 0.375rem;
-            position: relative;
-            transition: all 0.2s;
-        }
-        .custom-checkbox:checked {
-            background-color: var(--tab-active-bg);
-            border-color: var(--tab-active-bg);
-        }
-        .custom-checkbox:checked::after {
-            content: '✔';
-            color: white;
-            font-size: 1rem;
-            font-weight: bold;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        
-        /* --- ESTILOS DO DROPDOWN CUSTOMIZADO --- */
-        .custom-select-wrapper {
-            position: relative;
-            width: 100%;
-        }
-        .custom-select-trigger {
+        .toggle-label {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 0.75rem 1rem;
-            background-color: rgba(31, 41, 55, 0.7);
-            border: 1px solid #4b5563;
-            border-radius: 0.5rem;
+            gap: 8px;
             cursor: pointer;
+            font-weight: 600;
+            user-select: none;
+            background: var(--bg-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
             transition: all 0.2s;
         }
-        .custom-select-wrapper.open .custom-select-trigger {
-            border-color: var(--setup-card-selected-border);
-            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5);
-        }
-        .custom-select-trigger .arrow {
-            width: 1rem;
-            height: 1rem;
-            transition: transform 0.2s ease-in-out;
-        }
-        .custom-select-wrapper.open .arrow {
-            transform: rotate(180deg);
-        }
-        .custom-options {
-            position: absolute;
-            top: calc(100% + 0.5rem);
-            left: 0;
-            right: 0;
-            background-color: #2d3748;
-            border-radius: 0.5rem;
-            border: 1px solid #4b5563;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 10;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
-        }
-        .custom-select-wrapper.open .custom-options {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-        .custom-option {
-            padding: 0.75rem 1rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .custom-option:hover {
-            background-color: var(--setup-card-selected-border);
-        }
-        .custom-option.selected {
-            background-color: rgba(99, 102, 241, 0.5);
-            font-weight: 600;
-        }
+        .toggle-label:hover { border-color: var(--primary-color); }
+        .toggle-label input { accent-color: var(--primary-color); width: 16px; height: 16px; }
+
+        /* ABAS */
+        .tabs-container { display: flex; gap: 10px; margin-bottom: 0; padding: 0 10px; overflow-x: auto; padding-bottom: 5px; }
+        .tab-btn { background: var(--card-bg); border: 1px solid var(--border-color); border-bottom: none; padding: 10px 20px; border-radius: 10px 10px 0 0; cursor: pointer; font-weight: 600; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; transition: all 0.2s; min-width: 120px; justify-content: center; position: relative; opacity: 0.7; }
+        .tab-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); opacity: 1; transform: translateY(-2px); box-shadow: 0 -2px 5px rgba(0,0,0,0.1); z-index: 10; }
+        .tab-btn:hover:not(.active) { background: var(--bg-color); opacity: 1; }
+        .tab-close { font-size: 0.8rem; margin-left: 5px; opacity: 0.6; border-radius: 50%; padding: 2px; }
+        .tab-close:hover { background: rgba(0,0,0,0.2); opacity: 1; }
+        .add-tab-btn { background: transparent; border: 2px dashed var(--border-color); color: var(--text-secondary); }
+        .add-tab-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+
+        /* Ferramentas */
+        .tools-section { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .tools-buttons { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+        .btn { padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; border: none; font-size: 0.9rem; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-secondary { background-color: var(--card-bg); color: var(--text-secondary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background-color: var(--bg-color); color: var(--text-main); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary-color); color: var(--primary-color); }
+        .btn-outline:hover { background: var(--primary-color); color: white; }
+
+        #jsonInput, #paste-area-container { display: none; }
+        #paste-textarea { width: 100%; height: 100px; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); }
+        #paste-area-container { width: 100%; max-width: 600px; margin-top: 10px; }
+
+        .main-grid { display: grid; grid-template-columns: 350px 1fr; gap: 2rem; align-items: start; margin-top: 10px; }
+        @media (max-width: 1024px) { .main-grid { grid-template-columns: 1fr; } }
+
+        .selection-panel { background: var(--card-bg); padding: 1.5rem; border-radius: 1rem; box-shadow: var(--shadow); height: fit-content; max-height: 85vh; overflow-y: auto; position: relative; z-index: 5; }
+        .semester-group { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+        .semester-title { font-weight: bold; color: var(--primary-color); margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 8px; border-radius: 6px; transition: background 0.2s; }
+        .semester-title:hover { background: var(--bg-color); }
+        .semester-content { display: block; }
+
+        .subject-item { display: flex; align-items: center; padding: 0.8rem; margin-bottom: 0.5rem; background: var(--bg-color); border-radius: 0.5rem; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; position: relative; }
+        .subject-item:hover { border-color: var(--border-color); transform: translateX(2px); }
+        .subject-item.selected { background: #dbeafe; border-color: var(--primary-color); }
+        body.dark-mode .subject-item.selected { background: rgba(37, 99, 235, 0.2); border-color: var(--primary-color); }
+        .subject-item.conflict { background: #fee2e2; border-color: var(--danger-color); }
+        body.dark-mode .subject-item.conflict { background: rgba(239, 68, 68, 0.2); }
+        .subject-item.reprovado-flag { border-left: 4px solid var(--danger-color); }
+        .subject-item.locked { opacity: 0.6; background-color: var(--locked-bg); cursor: not-allowed; border-color: transparent; }
+        .subject-item.locked .subject-name { color: var(--locked-text); }
+        .subject-item.locked .checkbox-wrapper input { cursor: not-allowed; opacity: 0.5; }
+
+        .subject-name { font-size: 0.9rem; font-weight: 600; }
+        .subject-details { font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.2rem; }
         
-        /* --- ESTILOS DO BOTÃO DE DOAÇÃO --- */
-        #donate-button {
-            background-color: transparent;
-            border: 1px solid transparent;
-            color: var(--text-color-secondary);
-            opacity: 0.7;
-            transition: all 0.3s ease-in-out;
-        }
-        #donate-button:hover {
-            opacity: 1;
-            color: var(--text-color-primary);
-            background-color: var(--card-bg);
-            border-color: var(--tab-border);
-        }
+        .req-badge { display: inline-block; background: var(--bg-color); color: var(--text-secondary); font-size: 0.7rem; padding: 2px 5px; border-radius: 4px; margin-right: 5px; border: 1px solid var(--border-color); }
+        .alert-badge { color: var(--danger-color); font-size: 0.7rem; font-weight: bold; margin-left: 5px; }
+        .locked-badge { margin-right: 5px; font-size: 0.8rem; }
 
+        .checkbox-wrapper { margin-right: 10px; display: flex; align-items: center; }
+        input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary-color); }
 
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: rgba(31, 41, 55, 0.3); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+        .calendar-container { background: var(--card-bg); border-radius: 1rem; box-shadow: var(--shadow); overflow-x: auto; position: relative; height: 900px; display: flex; border: 1px solid var(--border-color); z-index: 1; }
+        .time-labels { width: 60px; flex-shrink: 0; background: var(--bg-color); border-right: 1px solid var(--border-color); position: sticky; left: 0; z-index: 10; }
+        .time-label { height: var(--hour-height); border-bottom: 1px solid var(--border-color); font-size: 0.75rem; color: var(--text-secondary); text-align: center; position: relative; top: -10px; }
+        .time-label span { background: var(--bg-color); padding: 0 4px; position: relative; top: 50%; border-radius: 4px; }
+        
+        .days-grid { flex-grow: 1; display: grid; grid-template-columns: repeat(6, 1fr); min-width: 800px; }
+        .day-column { position: relative; border-right: 1px solid var(--border-color); background: var(--card-bg); }
+        .day-header { height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--primary-color); background: var(--bg-color); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 5; }
+        .grid-line { height: var(--hour-height); border-bottom: 1px dashed var(--border-color); box-sizing: border-box; }
+
+        .event-block { position: absolute; left: 2px; right: 2px; background: #dbeafe; border-left: 4px solid var(--primary-color); border-radius: 4px; padding: 6px; font-size: 0.75rem; color: var(--primary-color); overflow: hidden; transition: all 0.2s; z-index: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        .event-block:hover { z-index: 20; transform: scale(1.05); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+        
+        .event-block.conflict { background: #fee2e2; border-left-color: #ef4444; color: #991b1b; opacity: 0.9; width: 80%; z-index: 5; }
+        body.dark-mode .event-block.conflict { background: rgba(239, 68, 68, 0.4); color: #fca5a5; }
+        .event-block.conflict:nth-child(even) { left: 15%; }
+        
+        .event-title { font-weight: bold; line-height: 1.2; margin-bottom: 4px; }
+        .event-info { font-size: 0.75rem; opacity: 0.9; margin-bottom: 2px; }
+        .event-room { font-weight: bold; background: rgba(255,255,255,0.5); padding: 2px 4px; border-radius: 4px; width: fit-content; margin-top: auto; font-size: 0.75rem; color: inherit; }
+        body.dark-mode .event-room { background: rgba(0,0,0,0.3); }
+        .event-owner { font-size: 0.7rem; background: rgba(0,0,0,0.1); padding: 1px 4px; border-radius: 4px; margin-bottom: 2px; width: fit-content; }
+
+        .conflict-alert { background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; display: none; border-left: 4px solid var(--danger-color); animation: shake 0.5s; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        /* MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content { background: var(--card-bg); color: var(--text-main); padding: 2.5rem; border-radius: 1rem; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; text-align: center; transform: scale(0.95); transition: transform 0.3s; border: 1px solid var(--border-color); }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        .modal-title { font-size: 1.8rem; color: var(--text-main); margin-bottom: 1rem; }
+        .modal-options { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
+        
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-main);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        .modal-input:focus { outline: 2px solid var(--primary-color); border-color: transparent; }
+
+        .profile-card { border: 2px solid var(--border-color); border-radius: 1rem; padding: 2rem; cursor: pointer; transition: all 0.2s; background: var(--bg-color); }
+        .profile-card:hover { border-color: var(--primary-color); transform: translateY(-5px); }
+        .profile-icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+        .profile-title { font-weight: bold; font-size: 1.2rem; display: block; margin-bottom: 0.5rem; }
+        .profile-desc { font-size: 0.9rem; color: var(--text-secondary); }
+
+        .history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 20px; text-align: left; }
+        .history-item { padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s; user-select: none; background: var(--bg-color); color: var(--text-main); }
+        .history-item:hover { transform: scale(1.02); border-color: var(--text-secondary); }
+        .history-item.status-none { opacity: 0.8; }
+        .history-item.status-approved { background: rgba(34, 197, 94, 0.1); border-color: var(--success-color); color: var(--success-color); }
+        .history-item.status-failed { background: rgba(239, 68, 68, 0.1); border-color: var(--danger-color); color: var(--danger-color); }
+        .status-icon { font-weight: bold; }
+
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body>
 
-    <!-- DADOS GLOBAIS DA APLICAÇÃO -->
-    <script id="app-data" type="application/json">
-    {
-        "subjects": {
-            "G08METC": { "name": "Metodologia Científica", "acronym": "Met. Cient.", "semester": 1, "schedule": [["seg", 7, 8]], "prerequisites": [] },
-            "G0811NSt.01": { "name": "Inglês Instrumental I", "acronym": "Inglês I", "semester": 1, "schedule": [["seg", 9, 10]], "prerequisites": [] },
-            "G08LPTA1.01": { "name": "Leitura e Produção de Textos Acadêmicos", "acronym": "LPTA", "semester": 1, "schedule": [["seg", 11, 12]], "prerequisites": [] },
-            "G08CSPBt.01": { "name": "Contexto Social e Profissional do Bacharel em SI", "acronym": "CSPB", "semester": 1, "schedule": [["ter", 7, 8]], "prerequisites": [] },
-            "G08CFVR1.01": { "name": "Cálculo com Funções de Uma Variável Real", "acronym": "Cálculo I", "semester": 1, "schedule": [["ter", 9, 10], ["qua", 7, 8], ["qui", 11, 12]], "prerequisites": [] },
-            "G08LPC01.01": { "name": "Lab. de Programação de Computadores I", "acronym": "Lab PC I", "semester": 1, "schedule": [["ter", 11, 12]], "prerequisites": [] },
-            "G08GAAL1.01": { "name": "Geometria Analítica e Álgebra Linear", "acronym": "GAAL", "semester": 1, "schedule": [["qui", 7, 8], ["sex", 9, 10]], "prerequisites": [] },
-            "G08PCOM1.01": { "name": "Programação de Computadores I", "acronym": "PC I", "semester": 1, "schedule": [["qui", 9, 10]], "prerequisites": [] },
-    
-            "G08BDAD1.01": { "name": "Banco de Dados I", "acronym": "BD I", "semester": 2, "schedule": [["seg", 7, 8]], "prerequisites": [] },
-            "G08AOC00.01": { "name": "Arquitetura e Organização de Computadores", "acronym": "AOC", "semester": 2, "schedule": [["seg", 9, 10], ["qui", 7, 8]], "prerequisites": [] },
-            "G08LPC02.01": { "name": "Laboratório de Programação de Computadores II", "acronym": "Lab PC II", "semester": 2, "schedule": [["ter", 9, 10]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
-            "G08ISOCO.01": { "name": "Informática e Sociedade", "acronym": "InfoSoc", "semester": 2, "schedule": [["seg", 11, 12]], "prerequisites": [] },
-            "G08ISER0.01": { "name": "Integração e Séries", "acronym": "Int. Séries", "semester": 2, "schedule": [["ter", 11, 12], ["sex", 11, 12]], "prerequisites": ["G08CFVR1.01"] },
-            "G08CFVV1.01": { "name": "Cálculo com Funções de Várias Variáveis I", "acronym": "Cálculo II", "semester": 2, "schedule": [["qua", 9, 10], ["qui", 9, 10]], "prerequisites": ["G08CFVR1.01"] },
-            "G08PCOM2.01": { "name": "Programação de Computadores II", "acronym": "PC II", "semester": 2, "schedule": [["qui", 11, 12]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
-            "G08LBD1.01": { "name": "Laboratório de Banco de Dados I", "acronym": "Lab BD I", "semester": 2, "schedule": [["sex", 9, 10]], "prerequisites": [] },
-    
-            "G08TEEDS.03": { "name": "Téc. Esp. em Des. de Sistemas", "acronym": "TEeDdS", "semester": 3, "schedule": [["seg", 7, 8], ["ter", 7, 8]], "prerequisites": [] },
-            "G08MNUM.03": { "name": "Métodos Numéricos", "acronym": "Mét. Num.", "semester": 3, "schedule": [["seg", 11, 12], ["ter", 9, 10]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
-            "G08EDO.03": { "name": "Equações Diferenciais Ordinárias", "acronym": "EDO", "semester": 3, "schedule": [["sex", 7, 8]], "prerequisites": ["G08CFVV1.01", "G08ISER0.01"] },
-            "G08LPC03.03": { "name": "Laboratório de Programação de Computadores III", "acronym": "Lab PC III", "semester": 3, "schedule": [["seg", 9, 10]], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
-            "G08SOC.03": { "name": "Sociologia", "acronym": "Sociologia", "semester": 3, "schedule": [["ter", 11, 12]], "prerequisites": [] },
-            "G08BDAD2.03": { "name": "Banco de Dados II", "acronym": "BD II", "semester": 3, "schedule": [["qua", 9, 10]], "prerequisites": ["G08BDAD1.01"] },
-            "G08ALIN.03": { "name": "Álgebra Linear", "acronym": "Álgebra", "semester": 3, "schedule": [["qua", 11, 12], ["qui", 7, 8]], "prerequisites": ["G08GAAL1.01"] },
-            "G08LBD2.03": { "name": "Laboratório de Banco de Dados II", "acronym": "Lab BD II", "semester": 3, "schedule": [["qui", 9, 10], ["sex", 11, 12]], "prerequisites": ["G08BDAD1.01", "G08LBD1.01"] },
-            "G08PCOM3.03": { "name": "Programação de Computadores III", "acronym": "PC III", "semester": 3, "schedule": [["sex", 9, 10]], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
-    
-            "G08SO.04": { "name": "Sistemas Operacionais", "acronym": "SO", "semester": 4, "schedule": [["seg", 7, 8], ["qua", 11, 12]], "prerequisites": ["G08AOC00.01"] },
-            "G08LESW.04": { "name": "Laboratório de Engenharia de Software", "acronym": "Lab Eng. Soft.", "semester": 4, "schedule": [["ter", 7, 8]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
-            "G08ESTAT.04": { "name": "Estatística", "acronym": "Estatística", "semester": 4, "schedule": [["ter", 9, 10], ["sex", 9, 10]], "prerequisites": [] },
-            "G08LREDES.04": { "name": "Laboratório de Redes de Computadores", "acronym": "Lab Redes", "semester": 4, "schedule": [["qua", 7, 8]], "prerequisites": [] },
-            "G08DINT.04": { "name": "Design de Interação", "acronym": "D. Interação", "semester": 4, "schedule": [["seg", 9, 10], ["ter", 7, 8]], "prerequisites": [] },
-            "G08ESW.04": { "name": "Engenharia de Software", "acronym": "Eng. Soft.", "semester": 4, "schedule": [["sex", 11, 12]], "prerequisites": ["G08PCOM1.01", "G08LPC01.01"] },
-            "G08REDES.04": { "name": "Redes de Computadores", "acronym": "Redes", "semester": 4, "schedule": [["qui", 9, 10], ["sex", 7, 8]], "prerequisites": [] },
-    
-            "G08GPROJ.05": { "name": "Gerenciamento de Projetos", "acronym": "Ger. Proj.", "semester": 5, "schedule": [["seg", 5, 6]], "prerequisites": ["G08ESW.04", "G08LESW.04"] },
-            "G08PROB.05": { "name": "Teoria da Probabilidade", "acronym": "Probab.", "semester": 5, "schedule": [["ter", 5, 6], ["qui", 5, 6]], "prerequisites": ["G08ESTAT.04"] },
-            "G08FILO.05": { "name": "Filosofia da Tecnologia", "acronym": "Filosofia", "semester": 5, "schedule": [["ter", 7, 8]], "prerequisites": [] },
-            "G08LPWEB.05": { "name": "Laboratório de Programação Web", "acronym": "Lab P. Web", "semester": 5, "schedule": [["ter", 9, 10], ["sex", 7, 8]], "prerequisites": ["G08BDAD2.03", "G08LBD2.03", "G08PCOM3.03", "G08LPC03.03"] },
-            "G08LGPR0.01": { "name": "Laboratório de Gerenciamento de Projetos", "acronym": "Lab Ger. Proj.", "semester": 5, "schedule": [["qua", 5, 6]], "prerequisites": ["G08ESW.04", "G08LESW.04"] },
-            "G08MP.05": { "name": "Metodologia da Pesquisa", "acronym": "Met. Pesq.", "semester": 5, "schedule": [["qui", 7, 8]], "prerequisites": [] },
-            "G08PWEB.05": { "name": "Programação Web", "acronym": "P. Web", "semester": 5, "schedule": [["qui", 9, 10]], "prerequisites": ["G08BDAD2.03", "G08LBD2.03", "G08PCOM3.03", "G08LPC03.03"] },
-            "OPT.PROTO": { "name": "Opt: Intro a Protótipos e Projetos", "acronym": "Opt. Protótipos", "semester": 5, "schedule": [["sex", 3, 3]], "prerequisites": [] },
-            "G08ED.05": { "name": "Estrutura de Dados", "acronym": "ED", "semester": 5, "schedule": [["sex", 9, 10]], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
-            "G08LED.05": { "name": "Laboratório de Estrutura de Dados", "acronym": "Lab ED", "semester": 5, "schedule": [["sex", 11, 12]], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
-    
-            "G08EMP.06": { "name": "Empreendedorismo I", "acronym": "Empreend. I", "semester": 6, "schedule": [["seg", 5, 6], ["sex", 6, 6]], "prerequisites": [] },
-            "G08NUVEM.06": { "name": "Computação em Nuvem", "acronym": "Nuvem", "semester": 6, "schedule": [["seg", 6, 6]], "prerequisites": ["G08REDES.04", "G08LREDES.04"] },
-            "G08AM.06": { "name": "Aprendizado de Máquina", "acronym": "AM", "semester": 6, "schedule": [["seg", 7, 8], ["ter", 5, 6]], "prerequisites": ["G08PROB.05"] },
-            "G08LDADM.06": { "name": "Laboratório de Des. de Aplicações para Disp. Móveis", "acronym": "Lab DADM", "semester": 6, "schedule": [["ter", 7, 8], ["sex", 7, 8]], "prerequisites": ["G08PWEB.05", "G08LPWEB.05"] },
-            "G08LNUVEM.06": { "name": "Laboratório de Computação em Nuvem", "acronym": "Lab Nuvem", "semester": 6, "schedule": [["qua", 5, 6]], "prerequisites": ["G08REDES.04", "G08LREDES.04"] },
-            "G08DADM.06": { "name": "Desenvolvimento de Aplicações para Dispositivos Móveis", "acronym": "DADM", "semester": 6, "schedule": [["qui", 5, 6]], "prerequisites": ["G08PWEB.05", "G08LPWEB.05"] },
-            "G08MD.06": { "name": "Matemática Discreta", "acronym": "Mat. Discreta", "semester": 6, "schedule": [["qui", 7, 8], ["sex", 5, 5]], "prerequisites": ["G08PROB.05", "G08PCOM2.01", "G08LPC02.01"] },
-    
-            "G08LMD.07": { "name": "Lab. Mineração de Dados", "acronym": "Lab Min. Dad.", "semester": 7, "schedule": [["seg", 7, 8]], "prerequisites": ["G08BDAD2.03", "G08ESTAT.04"] },
-            "G08EMP2.07": { "name": "Empreendedorismo II", "acronym": "Emp II", "semester": 7, "schedule": [["seg", 9, 10], ["ter", 10, 10]], "prerequisites": ["G08EMP.06"] },
-            "G08LLP.07": { "name": "Lab. Linguagens de Programação", "acronym": "Lab Lings", "semester": 7, "schedule": [["seg", 11, 12]], "prerequisites": ["G08PCOM3.03"] },
-            "G08ECO.07": { "name": "Engenharia Econômica", "acronym": "Eng. Eco.", "semester": 7, "schedule": [["ter", 7, 9]], "prerequisites": [] },
-            "G08IA.07": { "name": "Inteligência Artificial Industrial (IAI)", "acronym": "IAI", "semester": 7, "schedule": [["qua", 7, 8], ["sex", 9, 10]], "prerequisites": ["G08ED.05", "G08PROB.05"] },
-            "G08MD.07": { "name": "Mineração de Dados", "acronym": "Min. Dad.", "semester": 7, "schedule": [["qui", 7, 8]], "prerequisites": ["G08BDAD2.03", "G08ESTAT.04"] },
-            "G08LIA.07": { "name": "Lab. Inteligência Artificial", "acronym": "Lab IA", "semester": 7, "schedule": [["qui", 9, 10]], "prerequisites": ["G08ED.05", "G08PROB.05"] },
-            "G08LP.07": { "name": "Linguagens de Programação", "acronym": "Lings Prog", "semester": 7, "schedule": [["sex", 7, 8]], "prerequisites": ["G08PCOM3.03"] },
+    <!-- MODAL PRINCIPAL -->
+    <div id="welcome-modal" class="modal-overlay">
+        <div class="modal-content">
+            <!-- Etapa 0: Nome -->
+            <div id="modal-step-0" style="display: none;">
+                <div class="modal-title">Novo Perfil</div>
+                <p>Qual é o nome do seu amigo(a)?</p>
+                <div style="margin: 20px 0;">
+                    <input type="text" id="new-friend-name" class="modal-input" placeholder="Ex: João Silva" onkeypress="if(event.key === 'Enter') confirmFriendName()">
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button class="btn btn-secondary" onclick="closeProfileModal()">Cancelar</button>
+                    <button class="btn btn-primary" onclick="confirmFriendName()">Continuar</button>
+                </div>
+            </div>
+
+            <!-- Etapa 1: Seleção de Perfil -->
+            <div id="modal-step-1">
+                <div class="modal-title">👋 Bem-vindo <span id="modal-user-name"></span></div>
+                <p>Para começarmos, qual é o seu perfil atual?</p>
+                <div class="modal-options">
+                    <div class="profile-card" onclick="selectProfileType('calouro')">
+                        <span class="profile-icon">👶</span>
+                        <span class="profile-title">Sou Calouro</span>
+                        <span class="profile-desc">Vou cursar o 1º período agora. Quero minha grade pronta.</span>
+                    </div>
+                    <div class="profile-card" onclick="selectProfileType('veterano')">
+                        <span class="profile-icon">🎓</span>
+                        <span class="profile-title">Sou Veterano</span>
+                        <span class="profile-desc">Já cursei algumas matérias. Quero marcar o que já fiz.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Etapa 2: Histórico -->
+            <div id="modal-step-2" style="display: none;">
+                <div class="modal-title">🎓 Histórico Escolar</div>
+                <p>Clique nas matérias para mudar o status:</p>
+                <div style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-secondary);">
+                    ⚪ Não cursei &nbsp;&nbsp; 🟢 Aprovado &nbsp;&nbsp; 🔴 Reprovado
+                </div>
+                <div id="history-container" style="max-height: 50vh; overflow-y: auto; padding: 10px;"></div>
+                <div style="margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="finishVeteranSetup()">✅ Confirmar Histórico</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>📅 Organizador de Grade BSI</h1>
             
-            "OPT.COMP": { "name": "Opt: Programação Competitiva", "acronym": "Opt. PC", "semester": 8, "schedule": [], "prerequisites": ["G08PCOM2.01", "G08LPC02.01"] },
-            "OPT.JUST": { "name": "Opt: Tecnologia e Justiça Fiscal", "acronym": "Opt. TJC", "semester": 8, "schedule": [], "prerequisites": [] }
-        }
-    }
-    </script>
+            <div class="top-controls">
+                <label class="toggle-label">
+                    <input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()">
+                    <span>🌙 Modo Escuro</span>
+                </label>
+                <label class="toggle-label">
+                    <input type="checkbox" id="group-mode-toggle" onchange="toggleGroupMode()">
+                    <span>👥 Comparar Horários (Todos)</span>
+                </label>
+            </div>
 
-    <!-- TELA DE CONFIGURAÇÃO INICIAL -->
-    <div id="setup-container" class="hidden">
-        <div class="setup-container-wrapper w-full max-w-2xl rounded-2xl shadow-lg p-6 md:p-8 max-h-[90vh] overflow-y-auto">
-            <!-- Passo 1: Escolha de Modo -->
-            <div id="initial-choice-screen">
-                <h2 class="text-2xl md:text-3xl font-bold text-center text-indigo-400">Configuração Inicial</h2>
-                <p class="text-secondary text-center mt-2 mb-8">Primeiro, vamos configurar seu perfil ou grupo.</p>
-                <h3 class="text-xl font-semibold text-center mb-6">Como você quer usar a ferramenta?</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div id="choice-individual" class="setup-card rounded-lg p-6 text-center">
-                        <span class="text-5xl">👤</span>
-                        <h4 class="text-xl font-bold mt-4">Individual</h4>
-                        <p class="text-secondary mt-1">Para planejar apenas a sua grade.</p>
+            <div class="tools-section">
+                <div class="tools-buttons">
+                    <button class="btn btn-outline" onclick="editCurrentProfile()">👤 Editar Perfil Atual</button>
+                    <div style="position: relative;">
+                        <label for="jsonInput" class="btn btn-primary">📂 Carregar JSON</label>
+                        <input type="file" id="jsonInput" accept=".json">
                     </div>
-                    <div id="choice-group" class="setup-card rounded-lg p-6 text-center">
-                        <span class="text-5xl">👥</span>
-                        <h4 class="text-xl font-bold mt-4">Em Grupo</h4>
-                        <p class="text-secondary mt-1">Para planejar em conjunto com amigos.</p>
-                    </div>
+                    <button class="btn btn-secondary" onclick="togglePasteArea()">📝 Colar JSON</button>
+                    <button class="btn btn-secondary" style="color:var(--danger-color);border-color:var(--danger-color);" onclick="resetAllData()">🗑️ Resetar Tudo</button>
                 </div>
+                <div id="paste-area-container">
+                    <textarea id="paste-textarea" placeholder='Cole seu JSON aqui...'></textarea>
+                    <button class="btn btn-primary" style="margin-top:5px; width:100%;" onclick="processPastedJSON()">Processar</button>
+                </div>
+                <div id="file-status"></div>
             </div>
+        </header>
 
-            <!-- Passo 2: Configuração Individual -->
-            <div id="individual-setup-screen" class="hidden">
-                <h2 class="text-2xl md:text-3xl font-bold text-center text-indigo-400">Configuração Inicial</h2>
-                <p class="text-secondary text-center mt-2 mb-8">Preencha seus dados para começar.</p>
-                <div id="individual-form-container"></div>
-                <div class="flex justify-between items-center mt-8">
-                    <button class="btn-back" data-target="initial-choice-screen">&lt; Voltar</button>
-                    <button id="start-individual-planning" class="btn-primary">Começar a Planejar</button>
-                </div>
-            </div>
+        <!-- ABAS DE PERFIS -->
+        <div class="tabs-container" id="tabs-container">
+            <!-- Gerado via JS -->
+        </div>
 
-            <!-- Passo 3: Configuração em Grupo -->
-            <div id="group-setup-screen" class="hidden">
-                <h2 class="text-2xl md:text-3xl font-bold text-center text-indigo-400">Configuração de Grupo</h2>
-                <p class="text-secondary text-center mt-2 mb-8">Adicione os membros e preencha os dados de cada um.</p>
-                <div id="group-form-container" class="space-y-8"></div>
-                <button id="add-member-btn" class="btn-secondary w-full font-bold py-2 px-6 rounded-lg transition-colors mt-6">+ Adicionar Membro</button>
-                <div class="flex justify-between items-center mt-8">
-                    <button class="btn-back" data-target="initial-choice-screen">&lt; Voltar</button>
-                    <button id="start-group-planning" class="btn-primary">Começar a Planejar</button>
-                </div>
+        <div id="conflict-alert" class="conflict-alert">
+            <strong>⚠️ Conflito Detectado!</strong> Verifique os blocos vermelhos na grade.
+        </div>
+
+        <div class="main-grid">
+            <div class="selection-panel" id="subjects-list"></div>
+            <div class="calendar-container">
+                <div class="time-labels" id="time-labels"></div>
+                <div class="days-grid" id="days-grid"></div>
             </div>
         </div>
     </div>
-
-    <!-- TEMPLATE DO FORMULÁRIO DE MEMBRO -->
-    <template id="member-form-template">
-        <div class="member-form border border-gray-700 rounded-lg p-6">
-            <h3 class="text-xl font-bold text-indigo-300 mb-4 member-title">Seu Perfil</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium mb-1 text-secondary">Nome</label>
-                    <input type="text" placeholder="Ex: João" class="form-input member-name">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1 text-secondary">Último semestre completo</label>
-                    <div class="custom-select-wrapper member-semester">
-                        <div class="custom-select-trigger">
-                            <span class="selected-value">Nenhum</span>
-                            <svg class="arrow w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </div>
-                        <div class="custom-options">
-                            <div class="custom-option selected" data-value="0">Nenhum</div>
-                            <div class="custom-option" data-value="1">1º Semestre</div>
-                            <div class="custom-option" data-value="2">2º Semestre</div>
-                            <div class="custom-option" data-value="3">3º Semestre</div>
-                            <div class="custom-option" data-value="4">4º Semestre</div>
-                            <div class="custom-option" data-value="5">5º Semestre</div>
-                            <div class="custom-option" data-value="6">6º Semestre</div>
-                            <div class="custom-option" data-value="7">7º Semestre</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-4 member-subjects-container hidden">
-                <label class="block text-sm font-medium mb-2 text-secondary">Marque as matérias que você foi <span class="font-bold text-red-400">REPROVADO</span> nos semestres anteriores.</label>
-                <div class="subjects-list border border-gray-700 rounded-lg p-4 overflow-y-auto"></div>
-            </div>
-        </div>
-    </template>
-
-    <!-- FERRAMENTA PRINCIPAL DE GRADE -->
-    <div id="main-app-container" class="main-container max-w-7xl w-full mx-auto rounded-2xl shadow-lg p-6 md:p-8 hidden"></div>
-
-    <!-- MODAIS E ELEMENTOS FLUTUANTES -->
-    <div id="prereq-overlay" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40 opacity-0 pointer-events-none"></div>
-    <div id="prereq-modal" class="modal-content fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-md bg-gray-800 rounded-xl shadow-2xl z-50 p-6 opacity-0 scale-95 pointer-events-none">
-        <h3 id="prereq-modal-title" class="text-xl font-bold text-indigo-400 mb-4"></h3>
-        <div id="prereq-modal-content" class="space-y-2"></div>
-    </div>
-    
-    <div id="notification-overlay" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40 opacity-0 pointer-events-none"></div>
-    <div id="notification-modal" class="modal-content fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-sm bg-gray-800 rounded-xl shadow-2xl z-50 p-6 opacity-0 scale-95 pointer-events-none">
-        <p id="notification-message" class="text-center text-lg"></p>
-        <button id="notification-close-btn" class="btn-primary w-full mt-6">OK</button>
-    </div>
-    
-    <div id="welcome-overlay" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40 opacity-0 pointer-events-none"></div>
-    <div id="welcome-modal" class="modal-content fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-2xl bg-gray-800 rounded-xl shadow-2xl z-50 p-6 md:p-8 opacity-0 scale-95 pointer-events-none">
-        <h2 class="text-2xl md:text-3xl font-bold text-indigo-400 mb-4 text-center">Bem-vindo ao Organizador de Grade! 👋</h2>
-        <div class="space-y-4 text-left max-h-[60vh] overflow-y-auto pr-2">
-            <div class="flex items-start space-x-4 p-3 bg-gray-900/50 rounded-lg">
-                <span class="text-2xl pt-1">✅</span>
-                <div>
-                    <h4 class="font-bold">Monte sua Grade</h4>
-                    <p class="text-sm text-secondary">Marque as caixas de seleção nas matérias que deseja cursar. Sua grade horária na parte inferior será atualizada automaticamente, mostrando possíveis conflitos em vermelho.</p>
-                </div>
-            </div>
-             <div class="flex items-start space-x-4 p-3 bg-gray-900/50 rounded-lg">
-                <span class="text-2xl pt-1">👥</span>
-                <div>
-                    <h4 class="font-bold">Análise de Grupo</h4>
-                    <p class="text-sm text-secondary">A aba "Grupo" analisa as matérias selecionadas por todos e mostra quais são compatíveis com o grupo todo, quais têm pendências e quais são individuais.</p>
-                </div>
-            </div>
-            <div class="flex items-start space-x-4 p-3 bg-gray-900/50 rounded-lg">
-                <span class="text-2xl pt-1">✨</span>
-                <div>
-                    <h4 class="font-bold">Simule o Futuro</h4>
-                    <p class="text-sm text-secondary">Ative o "Modo Simulação" e clique no ícone de chapéu (🎓) para simular a aprovação em uma matéria. Isso liberará as disciplinas que dependem dela, permitindo um planejamento avançado.</p>
-                </div>
-            </div>
-            <div class="flex items-start space-x-4 p-3 bg-gray-900/50 rounded-lg">
-                <span class="text-2xl pt-1">❌</span>
-                <div>
-                    <h4 class="font-bold">Veja Pré-requisitos Faltantes</h4>
-                    <p class="text-sm text-secondary">Passe o mouse sobre uma matéria bloqueada por alguns instantes. Um pop-up surgirá mostrando exatamente quais disciplinas você precisa concluir para liberá-la.</p>
-                </div>
-            </div>
-        </div>
-        <div class="text-center mt-8">
-            <button id="close-welcome-modal" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Entendi, vamos lá!</button>
-        </div>
-    </div>
-
-    <div id="donate-overlay" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40 opacity-0 pointer-events-none"></div>
-    <div id="donate-modal" class="modal-content fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-sm bg-gray-800 rounded-xl shadow-2xl z-50 p-6 opacity-0 scale-95 pointer-events-none text-center">
-        <h3 class="text-xl font-bold text-indigo-400 mb-2">Apoie o Desenvolvedor</h3>
-        <p class="text-secondary mb-4">Seu apoio ajuda a manter e melhorar esta ferramenta!</p>
-        <img id="pix-qrcode" src="https://lh3.googleusercontent.com/fife/ALs6j_ExduTgvkHEKYKrumDks93KdAn4VklwTyQN_0pahu7_SHFI1vyQTuNMUS4yuEQPxKqK0OuS1Vx4vwM5a0kVZSWjk6muepajIfNXKOitXt8UoQseAi3gghLkDheCYLljDNtnJy_WXsG60wEapE7nV8rTMUyOpS-blHEC4qpQil-AAuHaCtMIoqMgI7OAJiuutzKsJBMQ-1A1rYee8oVIdeum9koVs6HSq-D9aYihiroHYpBMUSitAozJkw0WscaVMSjGjFSuAniaZZdsswHd_nMoaLXSYFNUzp9Q_JeYhellHs4d-C6wdlp8v_cWeMNUiCPuC00IS_qgNOzBUK84HFkeVETWezsPHlLzaHe2h1XQhjViFvc7IKtm0BBgIGfHa8M47ISnCC6FC4575HDE1Oe4OAlA00v0mvCO8vvlMK-emcjpG5ys9Cg35cTpQHdQ8H7NKy6Ej_haFDbl8MRTfRK7ClNGThD14j7UdnIRlbzlG_0vjpJYSheEcShdhtpeSQXfKl_tBmPyxE4koGIC14Joo52KvCHnXLjrhZjfgq7dtHAVlAlCD7DDo31pXRaiHep2gQAp0QfBOZfcGlEDzyp6KtFvHpNEfwfOeS73OON3pZedEQFekKKWJKbjcUJWBi6mR5Bx6fkeNpp_ldMWeNQhQXXZhnTnfVySOtjQrOHxwAJH7kcE0BINQ8SCyDYZZ6L_sHjdMsbGmi_I2eXNWBLtrhxW2ifVjiWy02wRf6A6Bro5bsUIF5iCljkBrbIYWrEzvB6VVYAFi0Aggy3vFtbGox1lKbiSl0ALLRxjo-WwYrQkXw8Qy2CZ4kAb-kY78B72Hw8FxDd0MWUm-WKqxr3vwoEwtMXgX8R-RHSQ0f2B5pYRI8HpxG4SZhQfLTA5gxks1BHhUHe34InV1V1c1j5CJfZP3k2XZeVgeo2met06mfxPtq9T6hq1yADXdd1ccHt_jTHYmSKRktmMzDjCKFHRgJdf7eSjK8sgb4YKNXQP3K_FIb4zpupj-2UH3tPdSseAlAyHUA4oLG5eIhIQsywV75zZ6NYE9-FFN-Bl5UKZfITT1bdhFV5HdQZywmHwV_vwEB8-IIW-xyD-K47OArD_L6xEHcy1jysIhBjyL2npPeJWKh8fUBxinV9rP5j5u77Hmkye2VeSUY_iaGp4J5cbJd1_oQ2n02PTHIjKpncdHv-OoasJd7PG9OvBQ5O5FRGqT5yFY5muvrA97h4-U8cfrk4ctTJ_Y48Z2uUot_CRGshEEooAHDZBdfZin6YwyZXHXaf9e-yJJmLFjX6k8hwXD1Dc0kCafFBZw0OWQ68MgybJzFTbj2inXnmXtev_sqtBuTkJLmTvoolwW6C9IQTX1nylBvptqBlJ3SAyEJe_eb_kfYi9QK_dq_zTk0RmKZ9W-jTRUn7NymAoxNnc32VSsiYJCDEb2_WVgQ-I-AavrOW3IZ-Y8pNQNB9Onap_d_zf66E3y8un_HCCntHk6EmW3Po74qkHpFUSqkwIfzXCHgSKqUddu0IfjgyDDS9BPtdFR0m-7-eRpSJ4j6-tXN1E75kG1moBDv-VukFUb9HPBxSfSnv0OAKX5PYmo5Il765LfTZGdAeyVp5mAwHF-Kel_gFHNhEdAb_RsNQ_CPNcYBu-9cBnKmFEXl76LWNFSthY-R9IFxZMX0fX4ZQlI416GLhsGSZlOAO5dUeCAHDeobs=w1912-h1000?auditContext=prefetch" alt="QR Code Pix" class="w-48 h-48 mx-auto rounded-lg">
-        <button id="copy-pix-btn" class="w-full mt-4 py-2 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-700 transition-colors font-semibold">Copiar Código Pix</button>
-    </div>
-
-    <button id="conflict-fab" class="hidden fixed bottom-6 right-6 w-14 h-14 bg-indigo-600 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-indigo-700 transition-colors z-20">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-        <span id="conflict-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden"></span>
-    </button>
-    <div id="conflict-sidebar" class="p-6 flex flex-col fixed top-0 right-0 h-full w-[350px] bg-[rgba(31,41,55,0.8)] backdrop-blur-xl border-l border-[rgba(255,255,255,0.1)] z-30">
-         <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold">Resumo de Conflitos</h2>
-            <button id="close-sidebar" class="text-gray-400 hover:text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-        </div>
-        <div id="conflict-list" class="flex-grow overflow-y-auto pr-2"></div>
-    </div>
-
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // --- DATABASE ---
-        const dataElement = document.getElementById('app-data');
-        const appData = JSON.parse(dataElement.textContent);
-        const subjects = appData.subjects;
-        let studentStatus = {};
+        // ==========================================
+        // DADOS GERAIS
+        // ==========================================
+        const GRID_START_HOUR = 7;
+        const GRID_END_HOUR = 23;
+        const PIXELS_PER_HOUR = 60;
+        const PIXELS_PER_MINUTE = PIXELS_PER_HOUR / 60;
 
-        // --- CONSTANTES E VARIÁVEIS GLOBAIS ---
-        const allTimeSlots = [ 
-            "7:00-7:50", "7:50-8:40", "9:00-9:50", "9:50-10:40", "10:50-11:40", "11:40-12:30", // Manhã (1-6)
-            "13:00-13:50", "13:50-14:40", "14:40-15:30", "15:50-16:40", "16:40-17:30", "17:40-18:30", // Tarde (7-12)
-            "19:00-19:50", "19:50-20:40", "20:50-21:40", "21:40-22:30", "22:30-23:20" // Noite (13-17)
+        function timeToMinutes(timeStr) {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        const defaultSubjectsData = [
+          {
+            "semestre": "1º Semestre",
+            "disciplinas": [
+              { "id": "metodologia", "nome": "Metodologia Científica", "professor": "Edilaine", "horarios": ["Seg 13:00-14:40"], "sala": "S309", "verificado": true },
+              { "id": "ingles1", "nome": "Inglês Instrumental I", "professor": "Maria Beatriz", "horarios": ["Seg 14:40-16:40"], "sala": "N/A", "verificado": true },
+              { "id": "leitura", "nome": "Leitura e Produção de Textos", "professor": "Edilaine", "horarios": ["Seg 16:40-18:30"], "sala": "S309", "verificado": true },
+              { "id": "contexto", "nome": "Contexto Social e Profissional", "professor": "Eduardo G.", "horarios": ["Ter 13:00-14:40"], "sala": "N/A", "verificado": true },
+              { "id": "calc_fvr", "nome": "Cálculo FVR", "professor": "Matemática", "horarios": ["Ter 14:40-16:40", "Qua 13:00-14:40", "Qui 16:40-18:30"], "sala": "S305", "verificado": true },
+              { "id": "lab_prog", "nome": "Laboratório de Programação", "professor": "Weider/Marcelo", "horarios": ["Ter 16:40-18:30"], "sala": "S116/S114", "verificado": true },
+              { "id": "gaal", "nome": "Geometria Analítica e Álgebra Linear", "professor": "Wélson", "horarios": ["Qui 13:00-14:40", "Sex 14:40-16:40"], "sala": "S305", "verificado": true },
+              { "id": "prog1", "nome": "Programação de Computadores I", "professor": "Weider", "horarios": ["Qui 14:40-16:40"], "sala": "S305", "verificado": true }
+            ]
+          },
+          {
+            "semestre": "2º Semestre",
+            "disciplinas": [
+              { "id": "bd1", "nome": "Banco de Dados I", "professor": "Deisymar", "horarios": ["Seg 13:00-14:40"], "sala": "S312", "verificado": true },
+              { "id": "arq1", "nome": "Arquitetura de Computadores", "professor": "Novo Efetivo", "horarios": ["Seg 14:40-16:40", "Qui 13:00-14:40"], "sala": "S312", "verificado": true },
+              { "id": "info_soc", "nome": "Informática e Sociedade", "professor": "Cristiano", "horarios": ["Seg 16:40-18:30"], "sala": "S312", "verificado": true },
+              { "id": "lab_prog2", "nome": "Laboratório de Programação II", "requisitos": ["prog1", "lab_prog"], "professor": "Eduardo/Weider", "horarios": ["Ter 14:40-16:40"], "sala": "S112", "verificado": true },
+              { "id": "int_series", "nome": "Integração e Séries", "requisitos": ["calc_fvr"], "professor": "Nilton", "horarios": ["Ter 16:40-18:30", "Sex 16:40-18:30"], "sala": "S308", "verificado": true },
+              { "id": "calc_vv1", "nome": "Cálculo V.V. I", "requisitos": ["calc_fvr"], "professor": "Wélson", "horarios": ["Qua 13:00-14:40", "Qui 14:40-16:40"], "sala": "S308", "verificado": true },
+              { "id": "prog2", "nome": "Programação de Computadores II", "requisitos": ["prog1", "lab_prog"], "professor": "Eduardo/Weider", "horarios": ["Qui 16:40-18:30"], "sala": "S308", "verificado": true },
+              { "id": "lab_bd1", "nome": "Laboratório de Banco de Dados I", "professor": "Eduardo G.", "horarios": ["Sex 14:40-16:40"], "sala": "S312", "verificado": true }
+            ]
+          },
+          {
+            "semestre": "3º Semestre",
+            "disciplinas": [
+              { "id": "teedds", "nome": "TEeDdS", "requisitos": ["prog2", "lab_prog2"], "professor": "Douglas", "horarios": ["Seg 09:00-10:40", "Qua 09:00-10:40"], "sala": "S112", "verificado": true },
+              { "id": "lab_prog3", "nome": "Laboratório de Programação III", "requisitos": ["prog2", "lab_prog2"], "professor": "Douglas/Luiz", "horarios": ["Seg 13:00-14:40"], "sala": "S116", "verificado": true },
+              { "id": "metodos_num", "nome": "Métodos Numéricos", "requisitos": ["calc_fvr", "gaal"], "professor": "Paulo M.", "horarios": ["Seg 14:40-16:40", "Ter 13:00-14:40"], "sala": "S314", "verificado": true },
+              { "id": "sociologia", "nome": "Sociologia", "professor": "Carlos", "horarios": ["Qui 13:00-14:40"], "sala": "S314", "verificado": true },
+              { "id": "bd2", "nome": "Banco de Dados II", "requisitos": ["bd1", "lab_bd1"], "professor": "Deisymar", "horarios": ["Ter 14:40-16:40"], "sala": "S314", "verificado": true },
+              { "id": "algebra_lin", "nome": "Álgebra Linear", "requisitos": ["gaal"], "professor": "Matemática", "horarios": ["Ter 16:40-18:30", "Qui 14:40-16:40"], "sala": "S314", "verificado": true },
+              { "id": "lab_bd2", "nome": "Laboratório de Banco de Dados II", "requisitos": ["bd1", "lab_bd1"], "professor": "Deisymar/Weider", "horarios": ["Sex 16:40-18:30"], "sala": "S108", "verificado": true },
+              { "id": "edo", "nome": "EDO", "requisitos": ["calc_vv1", "int_series"], "professor": "Nilton", "horarios": ["Qua 13:00-14:40", "Sex 13:00-14:40"], "sala": "S314", "verificado": true },
+              { "id": "prog3", "nome": "Programação III", "requisitos": ["prog2", "lab_prog2"], "professor": "Douglas", "horarios": ["Sex 14:40-16:40"], "sala": "S112", "verificado": true }
+            ]
+          },
+          {
+            "semestre": "4º Semestre",
+            "disciplinas": [
+                { "id": "so", "nome": "Sistemas Operacionais", "requisitos": ["arq1", "prog1"], "professor": "Wanderson", "horarios": ["Seg 13:00-14:40", "Qui 16:40-18:30"], "sala": "S309", "verificado": true },
+                { "id": "design", "nome": "Design - SI", "professor": "Wanderson", "horarios": ["Seg 14:40-16:40", "Qui 13:00-14:40"], "sala": "S114", "verificado": true },
+                { "id": "lab_eng_soft", "nome": "Laboratório de Engenharia de Software", "requisitos": ["prog2", "lab_prog2"], "professor": "Deisymar", "horarios": ["Ter 13:00-14:40"], "sala": "S112", "verificado": true },
+                { "id": "estatistica", "nome": "Estatística", "requisitos": ["calc_fvr"], "professor": "Nilton", "horarios": ["Ter 14:40-16:40", "Sex 14:40-16:40"], "sala": "S309", "verificado": true },
+                { "id": "lab_redes", "nome": "Laboratório de Redes", "professor": "Novo Efetivo", "horarios": ["Qua 13:00-14:40"], "sala": "S108", "verificado": true },
+                { "id": "redes", "nome": "Redes de Computadores", "professor": "Novo Efetivo", "horarios": ["Qui 14:40-16:40", "Sex 13:00-14:40"], "sala": "S309", "verificado": true },
+                { "id": "eng_soft", "nome": "Engenharia de Software", "requisitos": ["prog2", "lab_prog2"], "professor": "Bruno", "horarios": ["Sex 16:40-18:30"], "sala": "S309", "verificado": true }
+            ]
+        },
+          {
+            "semestre": "5º Semestre",
+            "disciplinas": [
+              { "id": "ger_proj", "nome": "Gerência de Projetos", "requisitos": ["eng_soft", "lab_eng_soft"], "professor": "Wanderson", "horarios": ["Seg 13:00-14:40"], "sala": "S305", "verificado": true },
+              { "id": "probabilidade", "nome": "Probabilidade", "requisitos": ["calc_fvr"], "professor": "Nilton", "horarios": ["Ter 13:00-14:40", "Qui 13:00-14:40"], "sala": "S305", "verificado": true },
+              { "id": "filosofia", "nome": "Filosofia", "professor": "Paulo Bicalho", "horarios": ["Ter 14:40-16:40"], "sala": "S305", "verificado": true },
+              { "id": "lab_prog_web", "nome": "Laboratório de Programação Web", "requisitos": ["prog3", "bd2", "lab_bd2"], "professor": "Lázaro", "horarios": ["Ter 16:40-18:30", "Sex 13:00-14:40"], "sala": "S112/S114", "verificado": true },
+              { "id": "lab_ger_proj", "nome": "Laboratório de Gerência de Projetos", "requisitos": ["ger_proj"], "professor": "Wanderson", "horarios": ["Qua 13:00-14:40"], "sala": "S110", "verificado": true },
+              { "id": "metodologia_pesq", "nome": "Metodologia de Pesquisa", "professor": "Eduardo G.", "horarios": ["Qui 14:40-16:40"], "sala": "S305", "verificado": true },
+              { "id": "prog_web", "nome": "Programação Web", "requisitos": ["prog3", "bd2", "lab_bd2"], "professor": "Lázaro", "horarios": ["Qui 16:40-18:30"], "sala": "S305", "verificado": true },
+              { "id": "prototipacao", "nome": "Projeto de Prototipação", "requisitos": ["eng_soft", "lab_eng_soft"], "professor": "Eduardo G.", "horarios": ["Sex 09:00-10:40"], "sala": "S305", "verificado": true },
+              { "id": "est_dados", "nome": "Estrutura de Dados", "requisitos": ["prog3", "lab_prog3"], "professor": "Luiz Flavio", "horarios": ["Sex 14:40-16:40"], "sala": "S305", "verificado": true },
+              { "id": "lab_est_dados", "nome": "Laboratório de Estrutura de Dados", "requisitos": ["prog3", "lab_prog3"], "professor": "Luiz Flavio", "horarios": ["Sex 16:40-18:30"], "sala": "S110", "verificado": true }
+            ]
+          },
+          {
+            "semestre": "6º Semestre",
+            "disciplinas": [
+              { "id": "emp1", "nome": "Empreendedorismo I", "professor": "Cristiano", "horarios": ["Seg 13:00-14:40", "Sex 14:40-16:40"], "sala": "S316", "verificado": true },
+              { "id": "nuvem", "nome": "Computação em Nuvem", "requisitos": ["redes", "so"], "professor": "BP", "horarios": ["Seg 14:40-16:40"], "sala": "S316", "verificado": true },
+              { "id": "ml", "nome": "Aprendizado de Máquina", "requisitos": ["probabilidade", "algebra_lin", "prog3"], "professor": "André", "horarios": ["Seg 16:40-18:30", "Ter 13:00-14:40"], "sala": "S110/S116", "verificado": true },
+              { "id": "lab_mobile", "nome": "Laboratório de Desenvolvimento de Aplicações Móveis", "requisitos": ["prog_web", "lab_prog_web"], "professor": "Lázaro", "horarios": ["Ter 14:40-16:40", "Sex 16:40-18:30"], "sala": "S116", "verificado": true },
+              { "id": "lab_nuvem", "nome": "Laboratório de Computação em Nuvem", "requisitos": ["nuvem"], "professor": "BP", "horarios": ["Qua 13:00-14:40"], "sala": "S114", "verificado": true },
+              { "id": "mobile", "nome": "Desenvolvimento de Aplicações Móveis", "requisitos": ["prog_web", "lab_prog_web"], "professor": "Lázaro", "horarios": ["Qui 13:00-14:40"], "verificado": true },
+              { "id": "discreta", "nome": "Matemática Discreta", "requisitos": ["algebra_lin"], "professor": "Luiz Flavio", "horarios": ["Qui 14:40-16:40", "Sex 13:00-14:40"], "sala": "S316", "verificado": true }
+            ]
+          },
+          {
+            "semestre": "7º Semestre",
+            "disciplinas": [
+              { "id": "lab_mineracao", "nome": "Laboratório de Mineração de Dados", "requisitos": ["bd2", "lab_bd2", "prog3"], "professor": "BP", "horarios": ["Seg 13:00-14:40"], "sala": "S110", "verificado": true },
+              { "id": "emp2", "nome": "Empreendedorismo II", "requisitos": ["emp1"], "professor": "Cristiano", "horarios": ["Seg 14:40-16:40", "Ter 15:30-17:20"], "sala": "S112", "verificado": true },
+              { "id": "lab_ling_prog", "nome": "Laboratório de Linguagens de Programação", "requisitos": ["prog3", "lab_prog3"], "professor": "Novo Efetivo 2", "horarios": ["Seg 16:40-18:30"], "sala": "S116", "verificado": true },
+              { "id": "econ", "nome": "Engenharia Econômica", "professor": "BP", "horarios": ["Ter 13:00-15:30"], "sala": "S316", "verificado": true },
+              { "id": "iai", "nome": "Inteligência Artificial Industrial", "requisitos": ["ml"], "professor": "Lázaro/Marcelo", "horarios": ["Qua 13:00-14:40", "Sex 14:40-16:40"], "sala": "S305", "verificado": true },
+              { "id": "mineracao", "nome": "Mineração de Dados", "requisitos": ["bd2", "lab_bd2", "prog3"], "professor": "BP", "horarios": ["Qui 13:00-14:40"], "sala": "S305", "verificado": true },
+              { "id": "lab_iai", "nome": "Laboratório de IAI", "requisitos": ["iai"], "professor": "Lázaro/Marcelo", "horarios": ["Qui 14:40-16:40"], "sala": "S114", "verificado": true },
+              { "id": "ling_prog", "nome": "Linguagens de Programação", "requisitos": ["prog3", "lab_prog3"], "professor": "Novo Efetivo 2", "horarios": ["Sex 13:00-14:40"], "sala": "S305", "verificado": true }
+            ]
+          }
         ];
-        // Garantindo que a tabela mostre TODOS os horários possíveis para evitar bugs visuais
-        const displayTimeSlots = [ 
-            "07:00-07:50", "07:50-08:40", "09:00-09:50", "09:50-10:40", "10:50-11:40", "11:40-12:30",
-            "13:00-13:50", "13:50-14:40", "14:40-15:30", "15:50-16:40", "16:40-17:30", "17:40-18:30",
-            "19:00-19:50", "19:50-20:40", "20:50-21:40", "21:40-22:30", "22:30-23:20"
-        ];
+
+        let subjectsData = JSON.parse(JSON.stringify(defaultSubjectsData));
         
-        const days = { 'seg': 'Segunda', 'ter': 'Terça', 'qua': 'Quarta', 'qui': 'Quinta', 'sex': 'Sexta' };
-        const dayOrder = ['seg', 'ter', 'qua', 'qui', 'sex'];
+        let appState = {
+            profiles: [], 
+            activeProfileId: null,
+            darkMode: false,
+            groupMode: false // Novo estado para modo grupo
+        };
+
+        const subjectMap = {};
+        defaultSubjectsData.forEach(sem => sem.disciplinas.forEach(d => subjectMap[d.id] = d.nome));
+
+        // ==========================================
+        // INICIALIZAÇÃO
+        // ==========================================
         
-        // --- VARIÁVEIS DE ESTADO DA APLICAÇÃO ---
-        const studentSelections = {};
-        const simulatedApprovals = {};
-        let simulationModeActive = false;
-        let currentStudent = '';
-        let hoverTimer = null;
-
-        // --- ELEMENTOS DO DOM ---
-        const body = document.body;
-        const setupContainer = document.getElementById('setup-container');
-        const mainAppContainer = document.getElementById('main-app-container');
-        const initialChoiceScreen = document.getElementById('initial-choice-screen');
-        const individualSetupScreen = document.getElementById('individual-setup-screen');
-        const groupSetupScreen = document.getElementById('group-setup-screen');
-        const choiceIndividualBtn = document.getElementById('choice-individual');
-        const choiceGroupBtn = document.getElementById('choice-group');
-        const backBtns = document.querySelectorAll('.btn-back');
-        const individualFormContainer = document.getElementById('individual-form-container');
-        const groupFormContainer = document.getElementById('group-form-container');
-        const addMemberBtn = document.getElementById('add-member-btn');
-        const startIndividualBtn = document.getElementById('start-individual-planning');
-        const startGroupBtn = document.getElementById('start-group-planning');
-        const notificationOverlay = document.getElementById('notification-overlay');
-        const notificationModal = document.getElementById('notification-modal');
-        const notificationMessage = document.getElementById('notification-message');
-        const notificationCloseBtn = document.getElementById('notification-close-btn');
-
-        // --- LÓGICA DE PERSISTÊNCIA ---
-        function saveState() {
-            try {
-                const state = {
-                    studentStatus,
-                    selections: {},
-                    simulations: {}
-                };
-                for (const student in studentSelections) {
-                    state.selections[student] = Array.from(studentSelections[student]);
-                }
-                for (const student in simulatedApprovals) {
-                    state.simulations[student] = Array.from(simulatedApprovals[student]);
-                }
-                localStorage.setItem('gradeOrganizerState', JSON.stringify(state));
-            } catch (e) {
-                console.error("Falha ao salvar o estado:", e);
-            }
-        }
-
-        function loadState() {
-            try {
-                const savedState = JSON.parse(localStorage.getItem('gradeOrganizerState'));
-                if (savedState && savedState.studentStatus && Object.keys(savedState.studentStatus).length > 0) {
-                    studentStatus = savedState.studentStatus;
-                    Object.keys(studentStatus).forEach(student => {
-                        // Filtra seleções antigas para evitar bugs se a matéria não existir mais
-                        const validSelections = (savedState.selections?.[student] || []).filter(code => subjects[code]);
-                        studentSelections[student] = new Set(validSelections);
-                        
-                        const validSimulations = (savedState.simulations?.[student] || []).filter(code => subjects[code]);
-                        simulatedApprovals[student] = new Set(validSimulations);
-                    });
-                    return true;
-                }
-                return false;
-            } catch (e) {
-                console.error("Falha ao carregar o estado:", e);
-                return false;
-            }
-        }
-
-        // --- LÓGICA DA TELA DE CONFIGURAÇÃO ---
-        function showScreen(screenElement) {
-            initialChoiceScreen.classList.add('hidden');
-            individualSetupScreen.classList.add('hidden');
-            groupSetupScreen.classList.add('hidden');
-            screenElement.classList.remove('hidden');
-        }
-
-        function createMemberForm(memberNumber = 1) {
-            const template = document.getElementById('member-form-template');
-            const clone = template.content.cloneNode(true);
-            const form = clone.querySelector('.member-form');
-            form.dataset.memberId = memberNumber;
-            const title = form.querySelector('.member-title');
-            if (memberNumber > 0) {
-                title.textContent = `Membro ${memberNumber}`;
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAppState();
             
-            // Lógica do dropdown customizado
-            const selectWrapper = form.querySelector('.custom-select-wrapper');
-            const trigger = selectWrapper.querySelector('.custom-select-trigger');
-            const options = selectWrapper.querySelectorAll('.custom-option');
+            // Sincroniza Checkboxes
+            document.getElementById('dark-mode-toggle').checked = appState.darkMode;
+            document.getElementById('group-mode-toggle').checked = appState.groupMode;
+            if(appState.darkMode) document.body.classList.add('dark-mode');
+
+            initCalendarGrid();
+            renderTabs();
             
-            trigger.addEventListener('click', () => {
-                selectWrapper.classList.toggle('open');
-            });
-
-            options.forEach(option => {
-                option.addEventListener('click', () => {
-                    const selectedValue = option.dataset.value;
-                    const selectedText = option.textContent;
-                    
-                    selectWrapper.querySelector('.selected-value').textContent = selectedText;
-                    selectWrapper.dataset.value = selectedValue;
-
-                    options.forEach(opt => opt.classList.remove('selected'));
-                    option.classList.add('selected');
-                    
-                    selectWrapper.classList.remove('open');
-                    updateSubjectsList(form, parseInt(selectedValue));
-                });
-            });
-
-            return form;
-        }
-
-        function updateSubjectsList(formElement, selectedSemester) {
-            const subjectsContainer = formElement.querySelector('.member-subjects-container');
-            const listDiv = subjectsContainer.querySelector('.subjects-list');
-            listDiv.innerHTML = '';
-
-            if (selectedSemester === 0) {
-                subjectsContainer.classList.add('hidden');
-                return;
-            }
-
-            let subjectsToShow = {};
-            Object.entries(subjects).forEach(([code, subject]) => {
-                if (subject.semester <= selectedSemester) {
-                    if (!subjectsToShow[subject.semester]) {
-                        subjectsToShow[subject.semester] = [];
-                    }
-                    subjectsToShow[subject.semester].push({code, name: subject.name});
-                }
-            });
-
-            Object.keys(subjectsToShow).sort((a, b) => a - b).forEach(semester => {
-                listDiv.innerHTML += `<h4 class="font-bold text-indigo-400 mt-3 mb-2 text-sm">${semester}º Semestre</h4>`;
-                subjectsToShow[semester].forEach(subject => {
-                    listDiv.innerHTML += `
-                        <label class="flex items-center space-x-3 p-2 rounded hover:bg-gray-700/50 cursor-pointer">
-                            <input type="checkbox" class="custom-checkbox" data-subject-code="${subject.code}">
-                            <span class="text-sm">${subject.name}</span>
-                        </label>
-                    `;
-                });
-            });
-            subjectsContainer.classList.remove('hidden');
-        }
-
-        function buildStudentStatusFromForms(forms) {
-            const newStudentStatus = {};
-            forms.forEach(form => {
-                const name = form.querySelector('.member-name').value.trim();
-                const semesterSelect = form.querySelector('.custom-select-wrapper');
-                const lastSemester = parseInt(semesterSelect.dataset.value || '0');
-                const reprovedCheckboxes = form.querySelectorAll('input[type="checkbox"]:checked');
-                const reprovedCodes = new Set(Array.from(reprovedCheckboxes).map(cb => cb.dataset.subjectCode));
-                const status = {};
-                Object.entries(subjects).forEach(([code, subject]) => {
-                    if (subject.semester <= lastSemester) {
-                        status[code] = reprovedCodes.has(code) ? 'REPRO' : 'APRO';
-                    }
-                });
-                newStudentStatus[name] = status;
-            });
-            return newStudentStatus;
-        }
-        
-        function setupConfigurationScreenListeners() {
-            choiceIndividualBtn.addEventListener('click', () => {
-                individualFormContainer.innerHTML = '';
-                individualFormContainer.appendChild(createMemberForm(0));
-                showScreen(individualSetupScreen);
-            });
-            choiceGroupBtn.addEventListener('click', () => {
-                groupFormContainer.innerHTML = '';
-                groupFormContainer.appendChild(createMemberForm(1));
-                showScreen(groupSetupScreen);
-            });
-            backBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    showScreen(document.getElementById(btn.dataset.target));
-                });
-            });
-            addMemberBtn.addEventListener('click', () => {
-                const memberCount = groupFormContainer.querySelectorAll('.member-form').length;
-                groupFormContainer.appendChild(createMemberForm(memberCount + 1));
-            });
-            startIndividualBtn.addEventListener('click', () => {
-                const form = individualFormContainer.querySelector('.member-form');
-                if (!form.querySelector('.member-name').value.trim()) {
-                    showNotification("Por favor, insira seu nome.");
-                    return;
-                }
-                studentStatus = buildStudentStatusFromForms([form]);
-                initializeApp();
-            });
-            startGroupBtn.addEventListener('click', () => {
-                const forms = Array.from(groupFormContainer.querySelectorAll('.member-form'));
-                if (forms.some(form => !form.querySelector('.member-name').value.trim())) {
-                    showNotification("Por favor, preencha o nome de todos os membros.");
-                    return;
-                }
-                studentStatus = buildStudentStatusFromForms(forms);
-                initializeApp();
-            });
-            
-            // Fecha o dropdown customizado se clicar fora
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.custom-select-wrapper')) {
-                    document.querySelectorAll('.custom-select-wrapper.open').forEach(wrapper => {
-                        wrapper.classList.remove('open');
-                    });
-                }
-            });
-        }
-
-        // --- LÓGICA DE NOTIFICAÇÃO ---
-        function showNotification(message) {
-            notificationMessage.textContent = message;
-            notificationOverlay.classList.add('active');
-            notificationModal.classList.add('active');
-        }
-        function closeNotification() {
-            notificationOverlay.classList.remove('active');
-            notificationModal.classList.remove('active');
-        }
-        notificationCloseBtn.addEventListener('click', closeNotification);
-        notificationOverlay.addEventListener('click', closeNotification);
-
-        // --- INICIALIZAÇÃO DA APLICAÇÃO PRINCIPAL ---
-        function initializeApp() {
-            body.classList.remove('is-setting-up');
-            setupContainer.classList.add('hidden');
-            mainAppContainer.classList.remove('hidden');
-            
-            buildMainAppUI();
-            
-            const studentNames = Object.keys(studentStatus);
-            const groupMode = studentNames.length > 1;
-            const tabsToShow = groupMode ? [...studentNames, 'Grupo'] : studentNames;
-
-            const tabsContainer = document.getElementById('tabs');
-            const contentContainer = document.getElementById('tab-content');
-            tabsContainer.innerHTML = '';
-            contentContainer.innerHTML = '';
-
-            tabsToShow.forEach((studentName) => {
-                if (!studentSelections[studentName] && studentName !== 'Grupo') studentSelections[studentName] = new Set();
-                if (!simulatedApprovals[studentName] && studentName !== 'Grupo') simulatedApprovals[studentName] = new Set();
-                
-                const tabButton = document.createElement('button');
-                tabButton.className = `tab-button text-sm md:text-base font-medium py-2 px-4 mx-1 mb-2 rounded-lg`;
-                tabButton.textContent = studentName === 'Grupo' ? '👥 Grupo' : studentName;
-                tabButton.dataset.student = studentName;
-                tabButton.addEventListener('click', () => showTab(studentName));
-                tabsContainer.appendChild(tabButton);
-
-                const contentPane = document.createElement('div');
-                contentPane.id = `content-${studentName}`;
-                contentPane.className = 'tab-pane';
-                contentPane.innerHTML = buildContentPaneHTML(studentName);
-                contentContainer.appendChild(contentPane);
-                
-                if (studentName !== 'Grupo') addPaneEventListeners(contentPane, studentName);
-            });
-            
-            addGlobalEventListeners();
-            showTab(tabsToShow[0]);
-            saveState();
-        }
-
-        function buildMainAppUI() {
-            mainAppContainer.innerHTML = `
-                <div class="flex justify-between items-start mb-4">
-                    <div class="text-left">
-                        <h1 class="text-3xl md:text-4xl font-bold">Organizador de Grade Horária 📚</h1>
-                        <p class="text-secondary mt-2">CEFET/MG - Unidade Varginha (2026/1)</p>
-                        <p class="text-xs text-gray-400 mt-1">Desenvolvido por: Antônio Prado Horta</p>
-                        <button id="donate-button" class="text-xs p-2 rounded-md mt-2">Gostou e te ajudou? Que tal um café para o dev? ☕</button>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        
-                        <!-- BOTÃO DE RESET NO LUGAR CORRETO -->
-                        <button id="reset-app-btn" title="Resetar / Sair" class="w-10 h-10 bg-gray-700/50 rounded-full flex items-center justify-center text-red-400 hover:bg-gray-700/80 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                        </button>
-       
-                        <button id="help-button" title="Ajuda" class="w-10 h-10 bg-gray-700/50 rounded-full flex items-center justify-center text-indigo-300 hover:bg-gray-700/80 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        </button>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-sm font-medium">Modo Simulação</span>
-                            <label for="sim-toggle" class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" value="" id="sim-toggle" class="sr-only peer">
-                                <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
-                            </label>
-                            <span class="text-lg">✨</span>
-                        </div>
-                    </div>
-                </div>
-                <div id="tabs" class="flex flex-wrap justify-center border-b mb-6" style="border-color: var(--tab-border);"></div>
-                <div id="tab-content"></div>
-            `;
-        }
-        
-        function buildContentPaneHTML(studentName) {
-            
-            if (studentName === 'Grupo') {
-                const groupMembers = Object.keys(studentStatus);
-                return `
-                    <h2 class="text-2xl font-bold text-indigo-400 mb-6">Análise de Matérias do Grupo</h2>
-                    <p class="text-secondary mb-8">Esta seção analisa as matérias selecionadas por ${groupMembers.join(', ')} para encontrar a grade ideal.</p>
-                    <div class="space-y-8">
-                        <div>
-                            <h3 class="text-xl font-semibold text-green-400 mb-4 pb-2 border-b border-green-400/30">✅ Matérias que Todos Podem Cursar</h3>
-                            <div id="group-common-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-semibold text-yellow-400 mb-4 pb-2 border-b border-yellow-400/30">⚠️ Matérias com Pendências</h3>
-                            <p class="text-secondary text-sm mb-4">Matérias selecionadas que um ou mais membros não podem cursar.</p>
-                            <div id="group-partial-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-semibold text-blue-400 mb-4 pb-2 border-b border-blue-400/30">👤 Matérias Individuais</h3>
-                            <p class="text-secondary text-sm mb-4">Matérias selecionadas que apenas um membro do grupo pode cursar.</p>
-                            <div id="group-exclusive-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-                        </div>
-                    </div>`;
+            if (appState.profiles.length === 0) {
+                createNewProfile("Você");
             } else {
-                const filterAndSearchHTML = `
-                    <div class="p-4 rounded-lg mb-6 bg-gray-900/30 flex flex-col md:flex-row gap-4 items-center">
-                        <div class="relative w-full md:w-1/3">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔎</span>
-                            <input type="text" placeholder="Buscar Matéria..." class="search-input w-full bg-gray-700/50 border border-gray-600 rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
-                        </div>
-                        <div class="flex-grow flex flex-wrap justify-center items-center gap-2">
-                             <p class="font-semibold text-secondary hidden md:block">Filtrar por Semestre:</p>
-                            ${[1, 2, 3, 4, 5, 6, 7, 8].map(s => `<button data-value="${s}" class="filter-button active px-3 py-1 rounded-md text-sm">${s <= 7 ? s+'º' : 'Opt'}</button>`).join('')}
-                        </div>
-                    </div>`;
-                const accordionHTML = `
-                    <div class="space-y-4">
-                        <div class="accordion-item">
-                            <div class="accordion-header flex justify-between items-center p-4 rounded-lg cursor-pointer bg-gray-800/50 hover:bg-gray-800/80"><h3 class="text-lg font-semibold text-green-400">✅ Pode Cursar</h3><span class="transform transition-transform duration-200 rotate-180">▼</span></div>
-                            <div class="accordion-content" id="accordion-content-canTake"></div>
-                        </div>
-                        <div class="accordion-item">
-                            <div class="accordion-header flex justify-between items-center p-4 rounded-lg cursor-pointer bg-gray-800/50 hover:bg-gray-800/80"><h3 class="text-lg font-semibold text-yellow-400">⚠️ Matérias a Refazer</h3><span class="transform transition-transform duration-200">▼</span></div>
-                            <div class="accordion-content" id="accordion-content-retake"></div>
-                        </div>
-                        <div class="accordion-item">
-                            <div class="accordion-header flex justify-between items-center p-4 rounded-lg cursor-pointer bg-gray-800/50 hover:bg-gray-800/80"><h3 class="text-lg font-semibold text-red-400">❌ Não Pode Cursar</h3><span class="transform transition-transform duration-200">▼</span></div>
-                            <div class="accordion-content" id="accordion-content-cannotTake"></div>
-                        </div>
-                    </div>`;
-                let tableHeader = `<tr><th class="w-24">Horário</th>${Object.values(days).map(day => `<th>${day}</th>`).join('')}</tr>`;
-                // Use displayTimeSlots for the rows
-                let tableBody = displayTimeSlots.map((slot, i) => `<tr><td class="font-medium text-secondary">${slot}</td>${Object.keys(days).map(dayKey => `<td id="${studentName}-${dayKey}-${i}">&nbsp;</td>`).join('')}</tr>`).join('');
-                const scheduleHTML = `<div class="mt-10">
-                    <div class="flex justify-center items-center mb-4 gap-4">
-                        <h3 class="text-xl font-bold text-center">📅 Visualizador de Grade</h3>
-                        <button id="export-btn-${studentName}" class="export-btn bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold py-1 px-3 rounded-lg flex items-center gap-2 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                            Exportar
-                        </button>
-                    </div>
-                    <p class="text-center text-secondary mb-4">Selecione as matérias para montar sua grade e ver possíveis conflitos.</p>
-                    <div class="overflow-x-auto">
-                        <table class="w-full schedule-table" id="schedule-table-${studentName}"><thead>${tableHeader}</thead><tbody>${tableBody}</tbody></table>
-                    </div>
-                </div>`;
-                return `<h2 class="text-2xl font-bold text-indigo-400 mb-6">Opções para ${studentName}</h2>${filterAndSearchHTML}${accordionHTML}${scheduleHTML}`;
+                renderSubjectsList();
+                updateSchedule();
             }
-        }
-        
-        function addPaneEventListeners(pane, studentName) {
-            pane.querySelectorAll('.filter-button').forEach(btn => btn.addEventListener('click', (e) => {
-                e.currentTarget.classList.toggle('active');
-                filterAndRender(studentName);
-            }));
-            pane.querySelector('.search-input').addEventListener('input', () => filterAndRender(studentName));
-            pane.querySelectorAll('.accordion-header').forEach(header => {
-                header.addEventListener('click', () => {
-                    const content = header.nextElementSibling;
-                    const arrow = header.querySelector('span');
-                    if (content.style.maxHeight && content.style.maxHeight !== '0px') {
-                        content.style.maxHeight = '0px';
-                        content.style.padding = "0 1rem";
-                        arrow.style.transform = 'rotate(0deg)';
-                    } else {
-                        content.style.padding = "1rem";
-                        content.style.maxHeight = content.scrollHeight + "px";
-                        arrow.style.transform = 'rotate(180deg)';
-                    }
-                });
-            });
-        }
-        
-        function addGlobalEventListeners() {
-            const contentContainer = document.getElementById('tab-content');
-            contentContainer.addEventListener('change', (e) => {
-                if (e.target.classList.contains('schedule-checkbox')) {
-                    const student = e.target.dataset.student;
-                    const subject = e.target.dataset.subject;
-                    if (e.target.checked) studentSelections[student].add(subject);
-                    else studentSelections[student].delete(subject);
-                    updateSchedule(student);
-                    saveState();
-                }
-            });
-            contentContainer.addEventListener('click', (e) => {
-                if (e.target.classList.contains('simulate-btn')) {
-                    const student = e.target.dataset.student;
-                    const subject = e.target.dataset.subject;
-                    if (simulatedApprovals[student].has(subject)) simulatedApprovals[student].delete(subject);
-                    else simulatedApprovals[student].add(subject);
-                    renderStudentContent(student);
-                    saveState();
-                }
-                if (e.target.closest('.export-btn')) {
-                    const btn = e.target.closest('.export-btn');
-                    btn.innerHTML = 'Exportando...'; btn.disabled = true;
-                    html2canvas(document.getElementById(`schedule-table-${currentStudent}`), { backgroundColor: '#1f2937', scale: 2 })
-                        .then(canvas => {
-                            const link = document.createElement('a');
-                            link.download = `grade-horaria-${currentStudent}.png`;
-                            link.href = canvas.toDataURL('image/png');
-                            link.click();
-                        }).finally(() => {
-                            btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg> Exportar';
-                            btn.disabled = false;
-                        });
-                }
-            });
-            
-            // --- CÓDIGO DO BOTÃO DE RESET ADICIONADO AQUI ---
-            const resetBtn = document.getElementById('reset-app-btn');
-            if (resetBtn) {
-                resetBtn.addEventListener('click', () => {
-                    if (confirm("Tem certeza que deseja resetar a aplicação? Todos os dados salvos serão perdidos.")) {
-                        localStorage.removeItem('gradeOrganizerState');
-                        location.reload();
-                    }
-                });
-            }
-            // -------------------------------------------------
+        });
 
-            const prereqOverlay = document.getElementById('prereq-overlay');
-            const prereqModal = document.getElementById('prereq-modal');
-            contentContainer.addEventListener('mouseover', (e) => {
-                const card = e.target.closest('.card-reprovado');
-                if (card && !hoverTimer) {
-                    hoverTimer = setTimeout(() => {
-                        const subjectCode = card.dataset.subjectCode;
-                        const subject = subjects[subjectCode];
-                        if (!subject?.prerequisites?.length) return;
-                        const approvedForSim = new Set([...getApprovedSubjects(currentStudent), ...(simulatedApprovals[currentStudent] || [])]);
-                        const missingPrereqs = subject.prerequisites.filter(p => !approvedForSim.has(p));
-                        if (missingPrereqs.length > 0) {
-                            document.getElementById('prereq-modal-title').textContent = `Pré-requisitos para: ${subject.name}`;
-                            document.getElementById('prereq-modal-content').innerHTML = missingPrereqs.map(pCode => {
-                                const prereqSubject = subjects[pCode];
-                                const status = studentStatus[currentStudent]?.[pCode];
-                                let statusTag = '<span class="text-xs font-bold px-2 py-1 rounded-full bg-yellow-500 text-black">Pendente</span>';
-                                if (status === 'REPRO') {
-                                    statusTag = '<span class="text-xs font-bold px-2 py-1 rounded-full bg-red-500 text-white">Reprovado</span>';
-                                }
-                                return `<div class="bg-gray-700 p-3 rounded-md flex justify-between items-center"><span>${prereqSubject.name}</span>${statusTag}</div>`;
-                            }).join('');
-                            prereqOverlay.classList.add('active');
-                            prereqModal.classList.add('active');
-                        }
-                        hoverTimer = null;
-                    }, 500);
-                }
-            });
-            contentContainer.addEventListener('mouseout', (e) => {
-                if (e.target.closest('.card-reprovado')) { clearTimeout(hoverTimer); hoverTimer = null; }
-            });
-            prereqOverlay.addEventListener('click', () => {
-                prereqOverlay.classList.remove('active');
-                prereqModal.classList.remove('active');
-            });
+        // ==========================================
+        // GERENCIAMENTO DE PERFIS E ABAS
+        // ==========================================
 
-            document.getElementById('sim-toggle').addEventListener('change', (e) => {
-                simulationModeActive = e.target.checked;
-                if (!simulationModeActive) {
-                    Object.keys(simulatedApprovals).forEach(student => simulatedApprovals[student].clear());
-                }
-                showTab(currentStudent);
-                saveState();
-            });
-            
-            const fab = document.getElementById('conflict-fab');
-            const sidebar = document.getElementById('conflict-sidebar');
-            fab.addEventListener('click', () => sidebar.classList.add('open'));
-            document.getElementById('close-sidebar').addEventListener('click', () => sidebar.classList.remove('open'));
-            document.getElementById('conflict-list').addEventListener('click', (e) => {
-                const btn = e.target.closest('.resolve-conflict-btn');
-                if (btn) {
-                    const { removeCode } = btn.dataset;
-                    const checkbox = document.querySelector(`#content-${currentStudent} .schedule-checkbox[data-subject="${removeCode}"]`);
-                    if (checkbox?.checked) {
-                        checkbox.checked = false;
-                        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-                    }
-                    sidebar.classList.remove('open');
-                }
-            });
-            
-            const welcomeOverlay = document.getElementById('welcome-overlay');
-            const welcomeModal = document.getElementById('welcome-modal');
-            const closeWelcomeBtn = document.getElementById('close-welcome-modal');
-            const helpBtn = document.getElementById('help-button');
-            const donateBtn = document.getElementById('donate-button');
-            const donateOverlay = document.getElementById('donate-overlay');
-            const donateModal = document.getElementById('donate-modal');
-            const copyPixBtn = document.getElementById('copy-pix-btn');
-
-            function showWelcomeModal() {
-                welcomeOverlay.classList.add('active');
-                welcomeModal.classList.add('active');
-            }
-            function hideWelcomeModal() {
-                welcomeOverlay.classList.remove('active');
-                welcomeModal.classList.remove('active');
-                localStorage.setItem('gradeOrganizer_hasVisited', 'true');
-            }
-            function showDonateModal() {
-                donateOverlay.classList.add('active');
-                donateModal.classList.add('active');
-            }
-            function hideDonateModal() {
-                donateOverlay.classList.remove('active');
-                donateModal.classList.remove('active');
-            }
-
-            helpBtn.addEventListener('click', showWelcomeModal);
-            closeWelcomeBtn.addEventListener('click', hideWelcomeModal);
-            welcomeOverlay.addEventListener('click', hideWelcomeModal);
-
-            donateBtn.addEventListener('click', showDonateModal);
-            donateOverlay.addEventListener('click', hideDonateModal);
-            
-            copyPixBtn.addEventListener('click', () => {
-                const pixCode = "00020126810014br.gov.bcb.pix0136fb34e584-9596-4b84-b3c4-88b0f38a65f00219Donate-GradeHoraria5204000053039865802BR5919Antonio Prado Horta6009Sao Paulo610901227-20062230519daqr81951553079230263046926";
-                const textArea = document.createElement('textarea');
-                textArea.value = pixCode;
-                document.body.appendChild(textArea);
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    const originalText = copyPixBtn.textContent;
-                    copyPixBtn.textContent = '✅ Copiado!';
-                    setTimeout(() => {
-                        copyPixBtn.textContent = originalText;
-                    }, 2000);
-                } catch (err) {
-                    console.error('Falha ao copiar o texto: ', err);
-                    showNotification('Erro ao copiar. Por favor, copie manualmente.');
-                }
-                document.body.removeChild(textArea);
-            });
-
-            if (!localStorage.getItem('gradeOrganizer_hasVisited') && Object.keys(studentStatus).length > 0) {
-                showWelcomeModal();
-            }
-        }
-
-        // --- LÓGICA DE RENDERIZAÇÃO E CORE ---
-        
-        function showTab(studentName) {
-            currentStudent = studentName;
-            document.querySelectorAll('.tab-button').forEach(b => {
-                b.classList.toggle('tab-active', b.dataset.student === studentName);
-                b.classList.toggle('tab-inactive', b.dataset.student !== studentName);
-            });
-            document.querySelectorAll('.tab-pane').forEach(p => p.style.display = p.id === `content-${studentName}` ? 'block' : 'none');
-            
-            const fab = document.getElementById('conflict-fab');
-            if (studentName === 'Grupo') {
-                renderGroupContent();
-                fab.classList.add('hidden');
-            } else {
-                renderStudentContent(studentName);
-                fab.classList.remove('hidden');
-            }
-        }
-
-        function getApprovedSubjects(studentName) {
-            const approved = new Set();
-            if(studentStatus[studentName]) {
-                Object.keys(studentStatus[studentName]).forEach(code => {
-                    if (studentStatus[studentName][code] === 'APRO') approved.add(code);
-                });
-            }
-            return approved;
-        }
-
-        function checkPrerequisites(approvedSet, subjectCode) {
-            const subject = subjects[subjectCode];
-            // Proteção contra erro se o código não existir na base atual
-            if (!subject) return true; 
-
-            if (!subject.prerequisites || subject.prerequisites.length === 0) return true;
-            return subject.prerequisites.every(prereqCode => approvedSet.has(prereqCode));
-        }
-
-        function createSubjectCard(studentName, subjectCode, approvedForThisSimulation, initiallyApproved) {
-            const subject = subjects[subjectCode];
-            if (!subject) return ''; // Proteção contra erro
-            
-            const studentOwnStatus = studentStatus[studentName]?.[subjectCode];
-            
-            const isRetake = studentOwnStatus === 'REPRO';
-            const canTakeNow = checkPrerequisites(approvedForThisSimulation, subjectCode);
-            const wasUnlockedBySim = canTakeNow && !checkPrerequisites(initiallyApproved, subjectCode);
-            const isChecked = studentSelections[studentName]?.has(subjectCode);
-            const isSimulated = simulatedApprovals[studentName]?.has(subjectCode);
-            let cardClass = '', statusText = '', showCheckbox = false, showSimButton = false;
-
-            if (isRetake) {
-                cardClass = 'card-refazer'; statusText = '⚠️ Precisa Refazer'; showCheckbox = true; showSimButton = true;
-            } else if (canTakeNow && studentOwnStatus === undefined) {
-                cardClass = 'card-aprovado'; 
-                statusText = wasUnlockedBySim ? '✨ Liberado p/ Simulação' : '✅ Pode Cursar';
-                showCheckbox = true; 
-                showSimButton = true;
-            } else if (!canTakeNow && studentOwnStatus === undefined) {
-                cardClass = 'card-reprovado'; statusText = '❌ Pré-requisitos pendentes';
-            } else {
-                return ''; // Não mostra matérias já aprovadas
-            }
-
-            const scheduleString = subject.schedule.length > 0
-                ? subject.schedule.map(s => {
-                    const slot = s[1];
-                    const dayName = days[s[0]].substring(0,3);
-                    const slotIndex = slot - 1; // 1-based to 0-based
-                    if (slotIndex >= 0 && slotIndex < allTimeSlots.length) {
-                        return `${dayName}. ${allTimeSlots[slotIndex].split('-')[0]}`;
-                    }
-                    return '???';
-                }).join(' / ')
-                : 'Horário a definir';
-            
-            const checkboxHTML = showCheckbox ? `<input type="checkbox" data-student="${studentName}" data-subject="${subjectCode}" class="custom-checkbox schedule-checkbox" ${isChecked ? 'checked' : ''}>` : '<div class="w-6 h-6"></div>';
-            const simButtonHTML = simulationModeActive && showSimButton ? `<button title="Simular Aprovação" data-student="${studentName}" data-subject="${subjectCode}" class="simulate-btn w-7 h-7 flex items-center justify-center rounded-full bg-gray-600 hover:bg-gray-500 transition-colors text-sm">🎓</button>` : '<div class="w-7 h-7"></div>';
-
-            return `<div class="card p-4 rounded-lg shadow-sm ${cardClass} ${isSimulated ? 'simulated-pass' : ''}" data-subject-code="${subjectCode}">
-                        <div class="flex justify-between h-full space-x-2">
-                            <div class="flex-grow flex flex-col justify-between min-w-0">
-                                <div><p class="font-bold truncate">${subject.name}</p><p class="text-sm text-secondary truncate">${scheduleString}</p></div>
-                                <p class="text-sm font-semibold mt-2">${statusText}</p>
-                            </div>
-                            <div class="flex-shrink-0 flex flex-col justify-between items-center space-y-2">${checkboxHTML}${simButtonHTML}</div>
-                        </div>
-                    </div>`;
-        }
-        
-        function renderStudentContent(studentName) {
-            const pane = document.getElementById(`content-${studentName}`);
-            if (!pane) return;
-
-            const initiallyApproved = getApprovedSubjects(studentName);
-            const approvedForThisSimulation = new Set([...initiallyApproved, ...(simulatedApprovals[studentName] || [])]);
-            
-            const classifiedSubjects = { retake: {}, canTake: {}, cannotTake: {} };
-
-            Object.keys(subjects).forEach(code => {
-                if (initiallyApproved.has(code)) return;
-                const subject = subjects[code];
-                const semester = subject.semester;
-                const isRetake = studentStatus[studentName]?.[code] === 'REPRO';
-                const canTakeNow = checkPrerequisites(approvedForThisSimulation, code);
-                
-                let category;
-                if (isRetake) category = 'retake';
-                else if (canTakeNow) category = 'canTake';
-                else category = 'cannotTake';
-
-                if (!classifiedSubjects[category][semester]) classifiedSubjects[category][semester] = [];
-                classifiedSubjects[category][semester].push(code);
-            });
-
-            ['retake', 'canTake', 'cannotTake'].forEach(category => {
-                const container = pane.querySelector(`#accordion-content-${category}`);
-                container.innerHTML = '';
-                const semesters = Object.keys(classifiedSubjects[category]).sort((a,b) => a - b);
-                
-                if (semesters.length === 0) {
-                    container.innerHTML = `<p class="text-secondary text-center p-4">Nenhuma matéria nesta categoria.</p>`;
-                } else {
-                    semesters.forEach(semester => {
-                        let semesterLabel = semester <= 7 ? `${semester}º Semestre` : 'Optativas';
-                        let semesterGroupHTML = `<div class="semester-group mb-6" data-semester="${semester}"><h4 class="font-bold text-lg mb-3 text-secondary border-b border-gray-700 pb-2">${semesterLabel}</h4><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
-                        classifiedSubjects[category][semester].forEach(code => {
-                            semesterGroupHTML += createSubjectCard(studentName, code, approvedForThisSimulation, initiallyApproved);
-                        });
-                        semesterGroupHTML += `</div></div>`;
-                        container.innerHTML += semesterGroupHTML;
-                    });
-                }
-            });
-            
-            const firstAccordionContent = pane.querySelector('#accordion-content-canTake');
-            if(firstAccordionContent && firstAccordionContent.scrollHeight > 0) {
-                firstAccordionContent.style.padding = "1rem";
-                firstAccordionContent.style.maxHeight = firstAccordionContent.scrollHeight + "px";
-            }
-            filterAndRender(studentName);
-        }
-
-        function filterAndRender(studentName) {
-            const pane = document.getElementById(`content-${studentName}`);
-            const selectedSemesters = Array.from(pane.querySelectorAll('.filter-button.active')).map(btn => parseInt(btn.dataset.value));
-            const searchTerm = pane.querySelector('.search-input').value.toLowerCase();
-
-            pane.querySelectorAll('.semester-group').forEach(group => {
-                const semester = parseInt(group.dataset.semester);
-                let hasVisibleCards = false;
-                if (selectedSemesters.includes(semester)) {
-                    group.querySelectorAll('.card').forEach(card => {
-                        const subjectCode = card.dataset.subjectCode;
-                        const subjectName = subjects[subjectCode].name.toLowerCase();
-                        if (subjectName.includes(searchTerm)) {
-                            card.style.display = 'block';
-                            hasVisibleCards = true;
-                        } else {
-                            card.style.display = 'none';
-                        }
-                    });
-                    group.style.display = hasVisibleCards ? 'block' : 'none';
-                } else {
-                    group.style.display = 'none';
-                }
-            });
-            updateSchedule(studentName);
-        }
-
-        function updateSchedule(studentName) {
-            const pane = document.getElementById(`content-${studentName}`);
-            if (!pane) return;
-            const table = document.getElementById(`schedule-table-${studentName}`);
-            if (!table) return;
-            
-            table.querySelectorAll('td:not(:first-child)').forEach(td => { td.innerHTML = '&nbsp;'; td.className = ''; td.removeAttribute('title'); });
-            pane.querySelectorAll('.card').forEach(card => card.classList.remove('card-conflict'));
-
-            const checkboxes = pane.querySelectorAll('.schedule-checkbox:checked');
-            const scheduleMap = {};
-            const conflictingSubjectCodes = new Set();
-            const conflictDetails = {};
-            // Agora o offset é 1 para mapear Slot 1 -> Indice 0 do allTimeSlots
-            const scheduleOffset = 1; 
-
-            // Para exibir na tabela, precisamos mapear os slots (1 a 17) para as linhas da tabela (0 a 16)
-            
-            checkboxes.forEach(cb => {
-                const subjectCode = cb.dataset.subject;
-                const subject = subjects[subjectCode];
-                if (!subject) return; // Proteção
-
-                subject.schedule.forEach(s => {
-                    const day = s[0];
-                    const startSlot = s[1];
-                    const endSlot = s[2];
-                    
-                    for (let slot = startSlot; slot <= endSlot; slot++) {
-                        let tableRowIndex = slot - 1; // 1-based to 0-based
-                        
-                        if (tableRowIndex >= 0 && tableRowIndex < displayTimeSlots.length) {
-                            const cellId = `${day}-${tableRowIndex}`;
-                            if (!scheduleMap[cellId]) scheduleMap[cellId] = [];
-                            scheduleMap[cellId].push({ name: subject.name, code: subjectCode });
-                        }
-                    }
-                });
-            });
-            
-            Object.entries(scheduleMap).forEach(([cellId, subjectsInSlot]) => {
-                const [dayKey, rowIndex] = cellId.split('-');
-                const cell = document.getElementById(`${studentName}-${dayKey}-${rowIndex}`);
-                if (cell) {
-                    if (subjectsInSlot.length > 1) {
-                        cell.innerHTML = subjectsInSlot.map(sub => subjects[sub.code].acronym).join('<hr class="my-1 border-red-400/50">');
-                        cell.classList.add('schedule-conflict');
-                        cell.title = `Conflito: ${subjectsInSlot.map(sub => sub.name).join(' vs ')}`;
-                        const timeLabel = `${days[dayKey]}, ${displayTimeSlots[parseInt(rowIndex)]}`;
-                        if (!conflictDetails[dayKey]) conflictDetails[dayKey] = {};
-                        if (!conflictDetails[dayKey][timeLabel]) conflictDetails[dayKey][timeLabel] = [];
-                        subjectsInSlot.forEach(sub => {
-                            conflictDetails[dayKey][timeLabel].push(sub);
-                            conflictingSubjectCodes.add(sub.code);
-                        });
-                    } else {
-                        cell.innerHTML = subjectsInSlot[0].name;
-                        cell.classList.add('filled-slot');
-                    }
-                }
-            });
-
-            conflictingSubjectCodes.forEach(code => {
-                pane.querySelector(`input[data-subject="${code}"]`)?.closest('.card').classList.add('card-conflict');
-            });
-            updateConflictMenu(conflictDetails);
-        }
-
-        function updateConflictMenu(conflictDetails) {
-            const list = document.getElementById('conflict-list');
-            const badge = document.getElementById('conflict-badge');
-            const conflictDays = Object.keys(conflictDetails);
-            const conflictCount = conflictDays.reduce((acc, day) => acc + Object.keys(conflictDetails[day]).length, 0);
-
-            if (conflictCount === 0) {
-                list.innerHTML = `<p class="text-secondary text-center mt-4">Nenhum conflito de horário. ✅</p>`;
-                badge.classList.add('hidden');
-            } else {
-                let html = '<div class="space-y-6">';
-                dayOrder.forEach(dayKey => {
-                    if (conflictDetails[dayKey]) {
-                        html += `<div><h3 class="text-lg font-bold text-indigo-400 border-b border-gray-700 pb-2 mb-3">${days[dayKey]}</h3><div class="space-y-4">`;
-                        Object.keys(conflictDetails[dayKey]).forEach(timeLabel => {
-                            const conflictingSubjects = [...new Map(conflictDetails[dayKey][timeLabel].map(item => [item['code'], item])).values()];
-                            html += `<div class="p-3 rounded-lg" style="background-color: var(--card-bg)">
-                                <p class="font-semibold text-gray-300">${timeLabel.split(', ')[1]}</p>
-                                <ul class="mt-2 space-y-2">`;
-                            for (let i = 0; i < conflictingSubjects.length; i++) {
-                                for (let j = i + 1; j < conflictingSubjects.length; j++) {
-                                    const subA = conflictingSubjects[i];
-                                    const subB = conflictingSubjects[j];
-                                    html += `<li class="border-t border-gray-700 pt-2 text-sm">
-                                                <p>${subA.name}</p>
-                                                <p class="text-red-400 text-center text-xs font-bold">vs</p>
-                                                <p>${subB.name}</p>
-                                                <div class="flex justify-around items-center mt-2">
-                                                    <button class="resolve-conflict-btn text-xs px-2 py-1 rounded bg-gray-700 hover:bg-gray-600" data-remove-code="${subB.code}">Manter ${subjects[subA.code].acronym}</button>
-                                                    <button class="resolve-conflict-btn text-xs px-2 py-1 rounded bg-gray-700 hover:bg-gray-600" data-remove-code="${subA.code}">Manter ${subjects[subB.code].acronym}</button>
-                                                </div>
-                                            </li>`;
-                                }
-                            }
-                            html += `</ul></div>`;
-                        });
-                        html += `</div></div>`;
-                    }
-                });
-                html += '</div>';
-                list.innerHTML = html;
-                badge.classList.remove('hidden');
-                badge.textContent = conflictCount;
-            }
-        }
-        
-        function renderGroupContent() {
-            const groupMembers = Object.keys(studentStatus);
-            const commonList = document.getElementById('group-common-list');
-            const partialList = document.getElementById('group-partial-list');
-            const exclusiveList = document.getElementById('group-exclusive-list');
-            if (!commonList) return;
-
-            commonList.innerHTML = partialList.innerHTML = exclusiveList.innerHTML = '';
-            
-            const allSelectedSubjects = new Set();
-            groupMembers.forEach(member => {
-                if (studentSelections[member]) {
-                    studentSelections[member].forEach(subjectCode => allSelectedSubjects.add(subjectCode));
-                }
-            });
-
-            if (allSelectedSubjects.size === 0) {
-                commonList.innerHTML = '<p class="text-secondary text-center col-span-full p-4">Nenhuma matéria selecionada.</p>';
-                return;
-            }
-
-            const results = { common: [], partial: [], exclusive: [] };
-            allSelectedSubjects.forEach(subjectCode => {
-                const eligibleMembers = [], ineligibleMembers = [];
-                groupMembers.forEach(member => {
-                    const approvedForSim = new Set([...getApprovedSubjects(member), ...(simulatedApprovals[member] || [])]);
-                    if (checkPrerequisites(approvedForSim, subjectCode)) eligibleMembers.push(member);
-                    else ineligibleMembers.push(member);
-                });
-                const data = { subject: subjects[subjectCode], eligible: eligibleMembers, ineligible: ineligibleMembers };
-                if (eligibleMembers.length === groupMembers.length) results.common.push(data);
-                else if (eligibleMembers.length > 1) results.partial.push(data);
-                else if (eligibleMembers.length === 1) results.exclusive.push(data);
-                else results.partial.push(data);
-            });
-
-            const createGroupCard = (data, type) => {
-                let detailsHTML = '';
-                if (type === 'partial') detailsHTML = `<p class="text-xs text-red-300 mt-2">Não podem: <span class="font-semibold">${data.ineligible.join(', ')}</span></p>`;
-                else if (type === 'exclusive') detailsHTML = `<p class="text-xs text-indigo-300 mt-2">Apenas para: <span class="font-semibold">${data.eligible.join(', ')}</span></p>`;
-                return `<div class="card p-4 rounded-lg shadow-sm"><p class="font-bold truncate">${data.subject.name}</p>${detailsHTML}</div>`;
+        function createNewProfile(name) {
+            const newId = Date.now();
+            const newProfile = {
+                id: newId,
+                name: name,
+                history: { approved: [], failed: [] },
+                selected: []
             };
-
-            results.common.length ? results.common.forEach(d => commonList.innerHTML += createGroupCard(d, 'common')) : commonList.innerHTML = '<p class="text-secondary text-center col-span-full p-4">Nenhuma matéria em comum.</p>';
-            results.partial.length ? results.partial.forEach(d => partialList.innerHTML += createGroupCard(d, 'partial')) : partialList.innerHTML = '<p class="text-secondary text-center col-span-full p-4">Nenhuma matéria com pendências.</p>';
-            results.exclusive.length ? results.exclusive.forEach(d => exclusiveList.innerHTML += createGroupCard(d, 'exclusive')) : exclusiveList.innerHTML = '<p class="text-secondary text-center col-span-full p-4">Nenhuma matéria individual.</p>';
+            appState.profiles.push(newProfile);
+            switchProfile(newId);
+            openProfileModal(true); 
         }
 
-        // --- INICIALIZAÇÃO GERAL ---
-        function init() {
-            setupConfigurationScreenListeners();
-            if (loadState()) {
-                initializeApp();
-            } else {
-                body.classList.add('is-setting-up');
-                setupContainer.classList.remove('hidden');
-                mainAppContainer.classList.add('hidden');
-                showScreen(initialChoiceScreen);
+        function switchProfile(profileId) {
+            appState.activeProfileId = profileId;
+            saveAppState();
+            renderTabs();
+            renderSubjectsList();
+            updateSchedule();
+        }
+
+        function deleteProfile(profileId, e) {
+            e.stopPropagation();
+            if(confirm("Tem certeza que deseja remover este perfil?")) {
+                appState.profiles = appState.profiles.filter(p => p.id !== profileId);
+                if(appState.profiles.length === 0) {
+                    createNewProfile("Você");
+                } else {
+                    switchProfile(appState.profiles[0].id);
+                }
             }
         }
 
-        init();
-    });
-    </script>
+        function renderTabs() {
+            const container = document.getElementById('tabs-container');
+            container.innerHTML = '';
 
+            appState.profiles.forEach(profile => {
+                const btn = document.createElement('button');
+                btn.className = `tab-btn ${profile.id === appState.activeProfileId ? 'active' : ''}`;
+                btn.innerHTML = `
+                    👤 ${profile.name}
+                    ${appState.profiles.length > 1 ? `<span class="tab-close" onclick="deleteProfile(${profile.id}, event)">✕</span>` : ''}
+                `;
+                btn.onclick = () => switchProfile(profile.id);
+                container.appendChild(btn);
+            });
+
+            const addBtn = document.createElement('button');
+            addBtn.className = 'tab-btn add-tab-btn';
+            addBtn.innerHTML = '➕ Amigo';
+            addBtn.onclick = () => showAddFriendModal();
+            container.appendChild(addBtn);
+        }
+
+        function getActiveProfile() {
+            return appState.profiles.find(p => p.id === appState.activeProfileId) || appState.profiles[0];
+        }
+
+        // ==========================================
+        // MODAIS E SETUP
+        // ==========================================
+
+        function showAddFriendModal() {
+            const modal = document.getElementById('welcome-modal');
+            modal.classList.add('active');
+            document.getElementById('modal-step-0').style.display = 'block';
+            document.getElementById('modal-step-1').style.display = 'none';
+            document.getElementById('modal-step-2').style.display = 'none';
+            setTimeout(() => document.getElementById('new-friend-name').focus(), 100);
+        }
+
+        function confirmFriendName() {
+            const input = document.getElementById('new-friend-name');
+            const name = input.value.trim();
+            if(name) {
+                input.value = '';
+                createNewProfile(name);
+            }
+        }
+
+        function openProfileModal(isNew = false) {
+            const profile = getActiveProfile();
+            document.getElementById('modal-user-name').textContent = profile.name;
+            const modal = document.getElementById('welcome-modal');
+            modal.classList.add('active');
+            document.getElementById('modal-step-0').style.display = 'none';
+            document.getElementById('modal-step-1').style.display = 'block';
+            document.getElementById('modal-step-2').style.display = 'none';
+        }
+
+        function editCurrentProfile() { openProfileModal(); }
+        function closeProfileModal() { document.getElementById('welcome-modal').classList.remove('active'); }
+
+        function selectProfileType(type) {
+            const profile = getActiveProfile();
+            if (type === 'calouro') {
+                profile.history = { approved: [], failed: [] };
+                profile.selected = [];
+                const sem1 = subjectsData.find(s => s.semestre.includes("1º"));
+                if(sem1 && sem1.disciplinas) sem1.disciplinas.forEach(d => profile.selected.push(d.nome));
+                saveAppState();
+                updateSchedule();
+                renderSubjectsList();
+                closeProfileModal();
+                alert(`Perfil de ${profile.name} configurado como Calouro!`);
+            } else if (type === 'veterano') {
+                document.getElementById('modal-step-1').style.display = 'none';
+                document.getElementById('modal-step-2').style.display = 'block';
+                renderHistoryPanel();
+            }
+        }
+
+        function renderHistoryPanel() {
+            const container = document.getElementById('history-container');
+            container.innerHTML = '';
+            const profile = getActiveProfile();
+            const approvedSet = new Set(profile.history.approved);
+            const failedSet = new Set(profile.history.failed);
+
+            subjectsData.forEach(sem => {
+                const groupTitle = document.createElement('h4');
+                groupTitle.textContent = sem.semestre;
+                groupTitle.style.marginTop = '15px';
+                groupTitle.style.borderBottom = '1px solid var(--border-color)';
+                container.appendChild(groupTitle);
+                const grid = document.createElement('div');
+                grid.className = 'history-grid';
+                if(sem.disciplinas) {
+                    sem.disciplinas.forEach(subj => {
+                        const item = document.createElement('div');
+                        item.className = 'history-item';
+                        if (approvedSet.has(subj.id)) {
+                            item.classList.add('status-approved');
+                            item.innerHTML = `<span>${subj.nome}</span> <span class="status-icon">✅</span>`;
+                        } else if (failedSet.has(subj.id)) {
+                            item.classList.add('status-failed');
+                            item.innerHTML = `<span>${subj.nome}</span> <span class="status-icon">🔴</span>`;
+                        } else {
+                            item.classList.add('status-none');
+                            item.innerHTML = `<span>${subj.nome}</span> <span class="status-icon">⚪</span>`;
+                        }
+                        item.onclick = () => toggleHistoryStatus(subj.id, item, subj.nome, profile);
+                        grid.appendChild(item);
+                    });
+                }
+                container.appendChild(grid);
+            });
+        }
+
+        function toggleHistoryStatus(id, element, name, profile) {
+            const approvedSet = new Set(profile.history.approved);
+            const failedSet = new Set(profile.history.failed);
+            element.classList.remove('status-none', 'status-approved', 'status-failed');
+            if (approvedSet.has(id)) {
+                approvedSet.delete(id); failedSet.add(id);
+                element.classList.add('status-failed');
+                element.innerHTML = `<span>${name}</span> <span class="status-icon">🔴</span>`;
+            } else if (failedSet.has(id)) {
+                failedSet.delete(id);
+                element.classList.add('status-none');
+                element.innerHTML = `<span>${name}</span> <span class="status-icon">⚪</span>`;
+            } else {
+                approvedSet.add(id);
+                element.classList.add('status-approved');
+                element.innerHTML = `<span>${name}</span> <span class="status-icon">✅</span>`;
+            }
+            profile.history.approved = Array.from(approvedSet);
+            profile.history.failed = Array.from(failedSet);
+        }
+
+        function finishVeteranSetup() {
+            const profile = getActiveProfile();
+            profile.selected = []; 
+            saveAppState();
+            updateSchedule();
+            renderSubjectsList();
+            closeProfileModal();
+        }
+
+        // ==========================================
+        // SISTEMA (DARK MODE & PERSISTÊNCIA)
+        // ==========================================
+
+        function toggleDarkMode() {
+            appState.darkMode = !appState.darkMode;
+            if(appState.darkMode) document.body.classList.add('dark-mode');
+            else document.body.classList.remove('dark-mode');
+            saveAppState();
+            updateSchedule(); // Recalcula cores dos blocos
+        }
+
+        function toggleGroupMode() {
+            appState.groupMode = !appState.groupMode;
+            saveAppState();
+            updateSchedule(); // Re-renderiza a grade (com ou sem todos os amigos)
+        }
+
+        function saveAppState() {
+            localStorage.setItem('gradeOrganizer_v2', JSON.stringify(appState));
+        }
+
+        function loadAppState() {
+            const saved = localStorage.getItem('gradeOrganizer_v2');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    appState = parsed;
+                } catch(e) { console.log("Erro ao carregar estado."); }
+            }
+        }
+
+        function resetAllData() {
+            if(confirm("ATENÇÃO: Isso apagará TODOS os perfis e dados salvos.")) {
+                localStorage.removeItem('gradeOrganizer_v2');
+                location.reload();
+            }
+        }
+
+        // ==========================================
+        // RENDERIZAÇÃO DA GRADE 
+        // ==========================================
+
+        function renderSubjectsList() {
+            const container = document.getElementById('subjects-list');
+            container.innerHTML = '';
+            
+            // Sempre mostra a lista do perfil ATIVO para controle
+            const profile = getActiveProfile();
+            const approvedSet = new Set(profile.history.approved);
+            const failedSet = new Set(profile.history.failed);
+            const selectedSet = new Set(profile.selected);
+
+            subjectsData.forEach(sem => {
+                const visibleSubjects = sem.disciplinas ? sem.disciplinas.filter(subj => !approvedSet.has(subj.id)) : [];
+                
+                const group = document.createElement('div');
+                group.className = 'semester-group';
+
+                const title = document.createElement('div');
+                title.className = 'semester-title';
+                let selectedCount = 0;
+                visibleSubjects.forEach(d => { if(selectedSet.has(d.nome)) selectedCount++; });
+                
+                const countBadge = selectedCount > 0 ? `<span style="font-size:0.8em; background:var(--primary-color); color:white; padding:2px 8px; border-radius:12px;">${selectedCount}</span>` : '';
+                title.innerHTML = `<span>${sem.semestre}</span> ${countBadge}`;
+                title.onclick = () => {
+                    const content = group.querySelector('.semester-content');
+                    content.style.display = content.style.display === 'none' ? 'block' : 'none';
+                };
+                group.appendChild(title);
+
+                const content = document.createElement('div');
+                content.className = 'semester-content';
+
+                if (visibleSubjects.length > 0) {
+                    visibleSubjects.forEach(subj => {
+                        const item = document.createElement('div');
+                        item.className = 'subject-item';
+                        item.dataset.subjName = subj.nome; 
+                        
+                        const missingReqs = (subj.requisitos || []).filter(reqId => !approvedSet.has(reqId));
+                        const isLocked = missingReqs.length > 0;
+
+                        if (isLocked) {
+                            item.classList.add('locked');
+                            const reqNames = missingReqs.map(rid => subjectMap[rid] || rid).join(', ');
+                            item.title = `🔒 Bloqueado! Requer: ${reqNames}`;
+                        } else {
+                            if (selectedSet.has(subj.nome)) item.classList.add('selected');
+                            if (failedSet.has(subj.id)) item.classList.add('reprovado-flag');
+                        }
+
+                        const reqIcon = isLocked ? `<span class="locked-badge">🔒</span>` : '';
+                        const alertIcon = failedSet.has(subj.id) ? `<span class="alert-badge">REFAZER!</span>` : '';
+
+                        item.innerHTML = `
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" ${selectedSet.has(subj.nome) ? 'checked' : ''} ${isLocked ? 'disabled' : ''}>
+                            </div>
+                            <div>
+                                <div class="subject-name">${reqIcon}${subj.nome}${alertIcon}</div>
+                                <div class="subject-details">${subj.professor}</div>
+                            </div>
+                        `;
+
+                        if (!isLocked) {
+                            item.onclick = (e) => toggleSubject(subj);
+                            item.querySelector('input').onclick = (e) => { e.stopPropagation(); toggleSubject(subj); };
+                        } else { item.style.cursor = 'not-allowed'; }
+
+                        content.appendChild(item);
+                    });
+                } else {
+                    const empty = document.createElement('div');
+                    empty.style.padding = "10px";
+                    empty.style.color = "var(--text-secondary)";
+                    empty.style.fontStyle = "italic";
+                    empty.textContent = "Semestre concluído! 🎉";
+                    content.appendChild(empty);
+                }
+                group.appendChild(content);
+                container.appendChild(group);
+            });
+        }
+
+        function toggleSubject(subject) {
+            const profile = getActiveProfile();
+            const selectedSet = new Set(profile.selected);
+            if (selectedSet.has(subject.nome)) selectedSet.delete(subject.nome);
+            else selectedSet.add(subject.nome);
+            
+            profile.selected = Array.from(selectedSet);
+            saveAppState();
+            updateSchedule();
+            renderSubjectsList(); 
+            setTimeout(updateSchedule, 50); 
+        }
+
+        // ==========================================
+        // LÓGICA DE GRADE E CONFLITOS (MODO GRUPO)
+        // ==========================================
+        function updateSchedule() {
+            document.querySelectorAll('.event-block').forEach(el => el.remove());
+            document.querySelectorAll('.subject-item').forEach(el => el.classList.remove('conflict'));
+            
+            const dayEvents = { Seg:[], Ter:[], Qua:[], Qui:[], Sex:[], Sáb:[] };
+            const startOfDayMin = GRID_START_HOUR * 60;
+            const globalConflicts = new Set(); // Conflitos do usuário ativo (para pintar lista lateral)
+
+            // Definição de Perfis a Renderizar
+            let profilesToRender = [];
+            if (appState.groupMode) {
+                profilesToRender = appState.profiles; // Todos
+            } else {
+                profilesToRender = [getActiveProfile()]; // Só o ativo
+            }
+
+            // Coleta dados de todos os perfis relevantes
+            profilesToRender.forEach((profile, profileIndex) => {
+                const selectedSet = new Set(profile.selected);
+                const approvedSet = new Set(profile.history.approved);
+                // Cor fixa baseada no índice do perfil para diferenciar no modo grupo
+                const userColor = getUserColor(profileIndex); 
+
+                subjectsData.forEach(sem => {
+                    if(!sem.disciplinas) return;
+                    sem.disciplinas.forEach(subj => {
+                        // Verifica se o aluno selecionou esta matéria
+                        if (!selectedSet.has(subj.nome) || approvedSet.has(subj.id)) return;
+
+                        subj.horarios.forEach(horarioStr => {
+                            let periodos = horarioStr.includes('|') ? horarioStr.split('|') : [horarioStr];
+                            periodos.forEach(periodo => {
+                                periodo = periodo.trim();
+                                const parts = periodo.split(' ');
+                                if(parts.length < 2) return;
+                                const diaMap = { 'Seg':'Seg', 'Ter':'Ter', 'Qua':'Qua', 'Qui':'Qui', 'Sex':'Sex', 'Sab':'Sáb', 'Sáb':'Sáb' };
+                                const dia = diaMap[parts[0]];
+                                if(!dia) return;
+                                const [horaInicio, horaFim] = parts[1].split('-');
+                                const startMin = timeToMinutes(horaInicio);
+                                const endMin = timeToMinutes(horaFim);
+                                const duration = endMin - startMin;
+
+                                // Decide color
+                                let eventColor;
+                                if (appState.groupMode) {
+                                    // In group mode, color by person to distinguish schedules
+                                    eventColor = getUserColor(profileIndex);
+                                } else {
+                                    // In individual mode, color by subject name to distinguish subjects
+                                    eventColor = stringToColor(subj.nome);
+                                }
+
+                                const eventObj = {
+                                    subj: subj, 
+                                    start: startMin, 
+                                    end: endMin,
+                                    top: (startMin - startOfDayMin) * PIXELS_PER_MINUTE + 40,
+                                    height: duration * PIXELS_PER_MINUTE,
+                                    timeStr: parts[1],
+                                    ownerName: profile.name, // Nome do dono da aula
+                                    color: eventColor,
+                                    isOwnerActive: (profile.id === appState.activeProfileId)
+                                };
+                                dayEvents[dia].push(eventObj);
+                            });
+                        });
+                    });
+                });
+            });
+
+            // Detectar Conflitos (Agora considera eventos de TODOS no modo grupo)
+            Object.keys(dayEvents).forEach(dia => {
+                const events = dayEvents[dia];
+                for (let i = 0; i < events.length; i++) {
+                    for (let j = i + 1; j < events.length; j++) {
+                        const A = events[i];
+                        const B = events[j];
+                        
+                        // Sobreposição de horários
+                        if (A.start < B.end && B.start < A.end) {
+                            // Se for o MESMO dono = Conflito real (Erro)
+                            if(A.ownerName === B.ownerName) {
+                                A.isConflict = true;
+                                B.isConflict = true;
+                                if(A.isOwnerActive) globalConflicts.add(A.subj.nome);
+                                if(B.isOwnerActive) globalConflicts.add(B.subj.nome);
+                            } 
+                            // Se donos diferentes = Apenas sobreposição visual (Encontro)
+                            else {
+                                A.isOverlap = true;
+                                B.isOverlap = true;
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Renderizar
+            Object.keys(dayEvents).forEach(dia => {
+                const col = document.getElementById(`col-${dia}`);
+                if(!col) return;
+                
+                dayEvents[dia].forEach(ev => {
+                    const block = document.createElement('div');
+                    block.className = 'event-block';
+                    if (ev.isConflict) block.classList.add('conflict');
+                    
+                    block.style.top = `${ev.top}px`;
+                    block.style.height = `${ev.height}px`;
+                    
+                    // Estilização baseada no dono
+                    if (!ev.isConflict) {
+                        block.style.backgroundColor = ev.color.bg;
+                        block.style.borderLeftColor = ev.color.border;
+                        block.style.color = ev.color.text;
+                        
+                        // No modo grupo, adiciona transparência se houver sobreposição
+                        if(appState.groupMode) {
+                            block.style.opacity = "0.85";
+                            // Se for sobreposição, ajusta largura pra ver ambos
+                            if(ev.isOverlap) {
+                                block.style.width = "70%";
+                                block.style.zIndex = "10";
+                                block.style.left = (ev.ownerName.length % 2 === 0) ? "5px" : "25%"; // hack simples de visualização
+                            }
+                        }
+                    }
+
+                    const sala = ev.subj.sala && ev.subj.sala !== 'N/A' ? ev.subj.sala : null;
+                    
+                    // Mostra nome do dono se estiver em modo grupo
+                    const ownerBadge = appState.groupMode ? `<div class="event-owner">${ev.ownerName}</div>` : '';
+
+                    block.innerHTML = `
+                        ${ownerBadge}
+                        <div class="event-title">${ev.subj.nome}</div>
+                        <div class="event-info">${ev.timeStr}</div>
+                        ${sala ? `<div class="event-room">📍 ${sala}</div>` : ''}
+                    `;
+                    col.appendChild(block);
+                });
+            });
+
+            const alertBox = document.getElementById('conflict-alert');
+            alertBox.style.display = globalConflicts.size > 0 ? 'block' : 'none';
+            
+            globalConflicts.forEach(name => {
+                const item = document.querySelector(`.subject-item[data-subj-name="${name}"]`);
+                if(item) item.classList.add('conflict');
+            });
+        }
+
+        // ==========================================
+        // HELPERS E CORES
+        // ==========================================
+        function initCalendarGrid() {
+            const timeCol = document.getElementById('time-labels');
+            timeCol.innerHTML = '';
+            for (let h = GRID_START_HOUR; h <= GRID_END_HOUR; h++) {
+                const div = document.createElement('div');
+                div.className = 'time-label';
+                div.innerHTML = `<span>${h.toString().padStart(2, '0')}:00</span>`;
+                timeCol.appendChild(div);
+            }
+            const daysGrid = document.getElementById('days-grid');
+            daysGrid.innerHTML = '';
+            ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].forEach(dayShort => {
+                const col = document.createElement('div');
+                col.className = 'day-column';
+                col.id = `col-${dayShort}`;
+                const header = document.createElement('div');
+                header.className = 'day-header';
+                header.textContent = dayShort;
+                col.appendChild(header);
+                for (let h = GRID_START_HOUR; h < GRID_END_HOUR; h++) {
+                    const line = document.createElement('div');
+                    line.className = 'grid-line';
+                    col.appendChild(line);
+                }
+                daysGrid.appendChild(col);
+            });
+        }
+
+        // Gera cores distintas para cada usuário do grupo (MODO DARK/LIGHT)
+        function getUserColor(index) {
+            // Paleta de Usuários (Azul, Verde, Roxo, Laranja, Rosa)
+            const hues = [217, 142, 271, 28, 330];
+            const h = hues[index % hues.length];
+            
+            if (appState.darkMode) {
+                 return { 
+                    bg: `hsla(${h}, 70%, 30%, 0.8)`, 
+                    border: `hsl(${h}, 70%, 60%)`, 
+                    text: `hsl(${h}, 90%, 95%)` 
+                };
+            } else {
+                 return { 
+                    bg: `hsla(${h}, 90%, 90%, 0.9)`, 
+                    border: `hsl(${h}, 70%, 45%)`, 
+                    text: `hsl(${h}, 90%, 20%)` 
+                };
+            }
+        }
+
+        function stringToColor(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) { hash = str.charCodeAt(i) + ((hash << 5) - hash); }
+            const h = Math.abs(hash) % 360;
+            
+            if (appState.darkMode) {
+                // Modo Escuro: Cores mais escuras e saturadas para o fundo, texto claro
+                return { 
+                    bg: `hsla(${h}, 60%, 25%, 0.8)`, 
+                    border: `hsl(${h}, 60%, 50%)`, 
+                    text: `hsl(${h}, 80%, 90%)` 
+                };
+            } else {
+                // Modo Claro: Cores pastéis claras
+                return { 
+                    bg: `hsla(${h}, 85%, 90%, 0.9)`, 
+                    border: `hsl(${h}, 70%, 40%)`, 
+                    text: `hsl(${h}, 80%, 25%)` 
+                };
+            }
+        }
+
+        function togglePasteArea() { const el = document.getElementById('paste-area-container'); el.style.display = el.style.display === 'none' ? 'block' : 'none'; }
+        
+        function processPastedJSON() {
+            const val = document.getElementById('paste-textarea').value;
+            try {
+                const parsed = JSON.parse(val);
+                if (Array.isArray(parsed)) subjectsData = parsed; else subjectsData.push(parsed);
+                getActiveProfile().selected = [];
+                updateSchedule(); 
+                renderSubjectsList();
+                alert('Dados importados!'); togglePasteArea();
+            } catch (e) { alert('Erro no JSON'); }
+        }
+
+        document.getElementById('jsonInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    subjectsData = JSON.parse(e.target.result);
+                    getActiveProfile().selected = [];
+                    updateSchedule(); 
+                    renderSubjectsList();
+                    alert('Arquivo carregado com sucesso!');
+                } catch(err) { console.error(err); alert('Erro ao ler arquivo'); }
+            };
+            reader.readAsText(file);
+        });
+    </script>
 </body>
 </html>
