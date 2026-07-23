@@ -233,6 +233,8 @@
         .req-badge { display: inline-block; background: var(--bg-color); color: var(--text-secondary); font-size: 0.7rem; padding: 2px 5px; border-radius: 4px; margin-right: 5px; border: 1px solid var(--border-color); }
         .alert-badge { color: var(--danger-color); font-size: 0.7rem; font-weight: bold; margin-left: 5px; }
         .locked-badge { margin-right: 5px; font-size: 0.8rem; }
+        .civil-badge { display: inline-block; margin-left: 6px; font-size: 0.7rem; font-weight: 600; color: var(--primary-color); background: rgba(37, 99, 235, 0.12); padding: 1px 6px; border-radius: 8px; cursor: help; }
+        .coreq-badge { display: inline-block; margin-left: 6px; font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); background: var(--locked-bg); padding: 1px 6px; border-radius: 8px; cursor: help; }
 
         .checkbox-wrapper { margin-right: 10px; display: flex; align-items: center; }
 
@@ -432,96 +434,108 @@
             "semestre": "1º Semestre",
             "disciplinas": [
               { "id": "metodologia", "nome": "Metodologia Científica", "professor": "Edilaine", "horarios": ["Seg 13:00-14:40"], "sala": "S309", "verificado": true },
-              { "id": "ingles1", "nome": "Inglês Instrumental I", "professor": "Maria Beatriz", "horarios": ["Seg 14:40-16:40"], "sala": "N/A", "verificado": true },
-              { "id": "leitura", "nome": "Leitura e Produção de Textos", "professor": "Edilaine", "horarios": ["Seg 16:40-18:30"], "sala": "S309", "verificado": true },
-              { "id": "contexto", "nome": "Contexto Social e Profissional", "professor": "Eduardo G.", "horarios": ["Ter 13:00-14:40"], "sala": "N/A", "verificado": true },
-              { "id": "calc_fvr", "nome": "Cálculo FVR", "professor": "Matemática", "horarios": ["Ter 14:40-16:40", "Qua 13:00-14:40", "Qui 16:40-18:30"], "sala": "S305", "verificado": true },
-              { "id": "lab_prog", "nome": "Laboratório de Programação", "professor": "Weider/Marcelo", "horarios": ["Ter 16:40-18:30"], "sala": "S116/S114", "verificado": true },
+              { "id": "ingles1", "nome": "Inglês Instrumental I", "professor": "Maria Beatriz", "horarios": ["Seg 14:40-16:40"], "sala": "N/A", "verificado": true, "civilNight": true },
+              { "id": "leitura", "nome": "Leitura e Produção de Textos Acadêmicos", "professor": "Edilaine", "horarios": ["Seg 16:40-18:30"], "sala": "S309", "verificado": true, "civilNight": true },
+              { "id": "contexto", "nome": "Contexto Social e Profissional do Bacharel em Sistemas de Informação", "professor": "Eduardo G.", "horarios": ["Ter 13:00-14:40"], "sala": "N/A", "verificado": true },
+              { "id": "calc_fvr", "nome": "Cálculo com Funções de uma Variável Real", "professor": "Matemática", "horarios": ["Ter 14:40-16:40", "Qua 13:00-14:40", "Qui 16:40-18:30"], "sala": "S305", "verificado": true, "civilNight": true },
+              { "id": "lab_prog", "nome": "Laboratório de Programação de Computadores I", "correquisitos": ["prog1"], "professor": "Weider/Marcelo", "horarios": ["Ter 16:40-18:30"], "sala": "S116/S114", "verificado": true, "civilNight": true },
               { "id": "gaal", "nome": "Geometria Analítica e Álgebra Linear", "professor": "Wélson", "horarios": ["Qui 13:00-14:40", "Sex 14:40-16:40"], "sala": "S305", "verificado": true },
-              { "id": "prog1", "nome": "Programação de Computadores I", "professor": "Weider", "horarios": ["Qui 14:40-16:40"], "sala": "S305", "verificado": true }
+              { "id": "prog1", "nome": "Programação de Computadores I", "correquisitos": ["lab_prog"], "professor": "Weider", "horarios": ["Qui 14:40-16:40"], "sala": "S305", "verificado": true, "civilNight": true }
             ]
           },
           {
             "semestre": "2º Semestre",
             "disciplinas": [
-              { "id": "bd1", "nome": "Banco de Dados I", "professor": "Deisymar", "horarios": ["Seg 13:00-14:40"], "sala": "S312", "verificado": true },
-              { "id": "arq1", "nome": "Arquitetura de Computadores", "professor": "Novo Efetivo", "horarios": ["Seg 14:40-16:40", "Qui 13:00-14:40"], "sala": "S312", "verificado": true },
+              { "id": "bd1", "nome": "Banco de Dados I", "correquisitos": ["lab_bd1"], "professor": "Deisymar", "horarios": ["Seg 13:00-14:40"], "sala": "S312", "verificado": true },
+              { "id": "arq1", "nome": "Arquitetura e Organização de Computadores", "professor": "Novo Efetivo", "horarios": ["Seg 14:40-16:40", "Qui 13:00-14:40"], "sala": "S312", "verificado": true },
               { "id": "info_soc", "nome": "Informática e Sociedade", "professor": "Cristiano", "horarios": ["Seg 16:40-18:30"], "sala": "S312", "verificado": true },
-              { "id": "lab_prog2", "nome": "Laboratório de Programação II", "requisitos": ["prog1", "lab_prog"], "professor": "Eduardo/Weider", "horarios": ["Ter 14:40-16:40"], "sala": "S112", "verificado": true },
+              { "id": "lab_prog2", "nome": "Laboratório de Programação de Computadores II", "requisitos": ["prog1", "lab_prog"], "correquisitos": ["prog2"], "professor": "Eduardo/Weider", "horarios": ["Ter 14:40-16:40"], "sala": "S112", "verificado": true, "civilNight": true },
               { "id": "int_series", "nome": "Integração e Séries", "requisitos": ["calc_fvr"], "professor": "Nilton", "horarios": ["Ter 16:40-18:30", "Sex 16:40-18:30"], "sala": "S308", "verificado": true },
-              { "id": "calc_vv1", "nome": "Cálculo V.V. I", "requisitos": ["calc_fvr"], "professor": "Wélson", "horarios": ["Qua 13:00-14:40", "Qui 14:40-16:40"], "sala": "S308", "verificado": true },
-              { "id": "prog2", "nome": "Programação de Computadores II", "requisitos": ["prog1", "lab_prog"], "professor": "Eduardo/Weider", "horarios": ["Qui 16:40-18:30"], "sala": "S308", "verificado": true },
-              { "id": "lab_bd1", "nome": "Laboratório de Banco de Dados I", "professor": "Eduardo G.", "horarios": ["Sex 14:40-16:40"], "sala": "S312", "verificado": true }
+              { "id": "calc_vv1", "nome": "Cálculo com Funções de Várias Variáveis I", "requisitos": ["calc_fvr", "gaal"], "professor": "Wélson", "horarios": ["Qua 13:00-14:40", "Qui 14:40-16:40"], "sala": "S308", "verificado": true, "civilNight": true },
+              { "id": "prog2", "nome": "Programação de Computadores II", "requisitos": ["prog1", "lab_prog"], "correquisitos": ["lab_prog2"], "professor": "Eduardo/Weider", "horarios": ["Qui 16:40-18:30"], "sala": "S308", "verificado": true },
+              { "id": "lab_bd1", "nome": "Laboratório de Banco de Dados I", "correquisitos": ["bd1"], "professor": "Eduardo G.", "horarios": ["Sex 14:40-16:40"], "sala": "S312", "verificado": true }
             ]
           },
           {
             "semestre": "3º Semestre",
             "disciplinas": [
-              { "id": "teedds", "nome": "TEeDdS", "requisitos": ["prog2", "lab_prog2"], "professor": "Douglas", "horarios": ["Seg 09:00-10:40", "Qua 09:00-10:40"], "sala": "S112", "verificado": true },
-              { "id": "lab_prog3", "nome": "Laboratório de Programação III", "requisitos": ["prog2", "lab_prog2"], "professor": "Douglas/Luiz", "horarios": ["Seg 13:00-14:40"], "sala": "S116", "verificado": true },
-              { "id": "metodos_num", "nome": "Métodos Numéricos", "requisitos": ["calc_fvr", "gaal"], "professor": "Paulo M.", "horarios": ["Seg 14:40-16:40", "Ter 13:00-14:40"], "sala": "S314", "verificado": true },
-              { "id": "sociologia", "nome": "Sociologia", "professor": "Carlos", "horarios": ["Qui 13:00-14:40"], "sala": "S314", "verificado": true },
-              { "id": "bd2", "nome": "Banco de Dados II", "requisitos": ["bd1", "lab_bd1"], "professor": "Deisymar", "horarios": ["Ter 14:40-16:40"], "sala": "S314", "verificado": true },
-              { "id": "algebra_lin", "nome": "Álgebra Linear", "requisitos": ["gaal"], "professor": "Matemática", "horarios": ["Ter 16:40-18:30", "Qui 14:40-16:40"], "sala": "S314", "verificado": true },
-              { "id": "lab_bd2", "nome": "Laboratório de Banco de Dados II", "requisitos": ["bd1", "lab_bd1"], "professor": "Deisymar/Weider", "horarios": ["Sex 16:40-18:30"], "sala": "S108", "verificado": true },
-              { "id": "edo", "nome": "EDO", "requisitos": ["calc_vv1", "int_series"], "professor": "Nilton", "horarios": ["Qua 13:00-14:40", "Sex 13:00-14:40"], "sala": "S314", "verificado": true },
-              { "id": "prog3", "nome": "Programação III", "requisitos": ["prog2", "lab_prog2"], "professor": "Douglas", "horarios": ["Sex 14:40-16:40"], "sala": "S112", "verificado": true }
+              { "id": "lab_prog3", "nome": "Laboratório de Programação de Computadores III", "requisitos": ["prog2", "lab_prog2"], "correquisitos": ["prog3"], "professor": "Douglas/Luiz", "horarios": ["Seg 13:00-14:40"], "sala": "S116", "verificado": true },
+              { "id": "metodos_num", "nome": "Métodos Numéricos Computacionais", "requisitos": ["prog1", "lab_prog"], "correquisitos": ["edo"], "professor": "Paulo M.", "horarios": ["Seg 14:40-16:40", "Ter 13:00-14:40"], "sala": "S314", "verificado": true, "civilNight": true },
+              { "id": "sociologia", "nome": "Introdução à Sociologia", "professor": "Carlos", "horarios": ["Qui 13:00-14:40"], "sala": "S314", "verificado": true, "civilNight": true },
+              { "id": "bd2", "nome": "Banco de Dados II", "requisitos": ["bd1", "lab_bd1"], "correquisitos": ["lab_bd2"], "professor": "Deisymar", "horarios": ["Ter 14:40-16:40"], "sala": "S314", "verificado": true },
+              { "id": "algebra_lin", "nome": "Álgebra Linear", "requisitos": ["gaal"], "professor": "Matemática", "horarios": ["Ter 16:40-18:30", "Qui 14:40-16:40"], "sala": "S314", "verificado": true, "civilNight": true },
+              { "id": "lab_bd2", "nome": "Laboratório de Banco de Dados II", "requisitos": ["bd1", "lab_bd1"], "correquisitos": ["bd2"], "professor": "Deisymar/Weider", "horarios": ["Sex 16:40-18:30"], "sala": "S108", "verificado": true },
+              { "id": "edo", "nome": "Equações Diferenciais Ordinárias", "requisitos": ["calc_vv1", "int_series"], "professor": "Nilton", "horarios": ["Qua 13:00-14:40", "Sex 13:00-14:40"], "sala": "S314", "verificado": true, "civilNight": true },
+              { "id": "prog3", "nome": "Programação de Computadores III", "requisitos": ["prog2", "lab_prog2"], "correquisitos": ["lab_prog3"], "professor": "Douglas", "horarios": ["Sex 14:40-16:40"], "sala": "S112", "verificado": true }
             ]
           },
           {
             "semestre": "4º Semestre",
             "disciplinas": [
-                { "id": "so", "nome": "Sistemas Operacionais", "requisitos": ["arq1", "prog1"], "professor": "Wanderson", "horarios": ["Seg 13:00-14:40", "Qui 16:40-18:30"], "sala": "S309", "verificado": true },
-                { "id": "design", "nome": "Design - SI", "professor": "Wanderson", "horarios": ["Seg 14:40-16:40", "Qui 13:00-14:40"], "sala": "S114", "verificado": true },
-                { "id": "lab_eng_soft", "nome": "Laboratório de Engenharia de Software", "requisitos": ["prog2", "lab_prog2"], "professor": "Deisymar", "horarios": ["Ter 13:00-14:40"], "sala": "S112", "verificado": true },
-                { "id": "estatistica", "nome": "Estatística", "requisitos": ["calc_fvr"], "professor": "Nilton", "horarios": ["Ter 14:40-16:40", "Sex 14:40-16:40"], "sala": "S309", "verificado": true },
-                { "id": "lab_redes", "nome": "Laboratório de Redes", "professor": "Novo Efetivo", "horarios": ["Qua 13:00-14:40"], "sala": "S108", "verificado": true },
-                { "id": "redes", "nome": "Redes de Computadores", "professor": "Novo Efetivo", "horarios": ["Qui 14:40-16:40", "Sex 13:00-14:40"], "sala": "S309", "verificado": true },
-                { "id": "eng_soft", "nome": "Engenharia de Software", "requisitos": ["prog2", "lab_prog2"], "professor": "Bruno", "horarios": ["Sex 16:40-18:30"], "sala": "S309", "verificado": true }
+              { "id": "so", "nome": "Sistemas Operacionais", "requisitos": ["arq1"], "professor": "Wanderson", "horarios": ["Seg 13:00-14:40", "Qui 16:40-18:30"], "sala": "S309", "verificado": true },
+              { "id": "design", "nome": "Design de Interação", "professor": "Wanderson", "horarios": ["Seg 14:40-16:40", "Qui 13:00-14:40"], "sala": "S114", "verificado": true },
+              { "id": "lab_eng_soft", "nome": "Laboratório de Engenharia de Software", "requisitos": ["prog1", "lab_prog"], "correquisitos": ["eng_soft"], "professor": "Deisymar", "horarios": ["Ter 13:00-14:40"], "sala": "S112", "verificado": true },
+              { "id": "estatistica", "nome": "Estatística", "requisitos": ["int_series"], "professor": "Nilton", "horarios": ["Ter 14:40-16:40", "Sex 14:40-16:40"], "sala": "S309", "verificado": true, "civilNight": true },
+              { "id": "lab_redes", "nome": "Laboratório de Redes de Computadores", "correquisitos": ["redes"], "professor": "Novo Efetivo", "horarios": ["Qua 13:00-14:40"], "sala": "S108", "verificado": true },
+              { "id": "redes", "nome": "Redes de Computadores", "correquisitos": ["lab_redes", "so"], "professor": "Novo Efetivo", "horarios": ["Qui 14:40-16:40", "Sex 13:00-14:40"], "sala": "S309", "verificado": true },
+              { "id": "eng_soft", "nome": "Engenharia de Software", "requisitos": ["prog1", "lab_prog"], "correquisitos": ["lab_eng_soft"], "professor": "Bruno", "horarios": ["Sex 16:40-18:30"], "sala": "S309", "verificado": true }
             ]
-        },
+          },
           {
             "semestre": "5º Semestre",
             "disciplinas": [
-              { "id": "ger_proj", "nome": "Gerência de Projetos", "requisitos": ["eng_soft", "lab_eng_soft"], "professor": "Wanderson", "horarios": ["Seg 13:00-14:40"], "sala": "S305", "verificado": true },
-              { "id": "probabilidade", "nome": "Probabilidade", "requisitos": ["calc_fvr"], "professor": "Nilton", "horarios": ["Ter 13:00-14:40", "Qui 13:00-14:40"], "sala": "S305", "verificado": true },
-              { "id": "filosofia", "nome": "Filosofia", "professor": "Paulo Bicalho", "horarios": ["Ter 14:40-16:40"], "sala": "S305", "verificado": true },
-              { "id": "lab_prog_web", "nome": "Laboratório de Programação Web", "requisitos": ["prog3", "bd2", "lab_bd2"], "professor": "Lázaro", "horarios": ["Ter 16:40-18:30", "Sex 13:00-14:40"], "sala": "S112/S114", "verificado": true },
-              { "id": "lab_ger_proj", "nome": "Laboratório de Gerência de Projetos", "requisitos": ["ger_proj"], "professor": "Wanderson", "horarios": ["Qua 13:00-14:40"], "sala": "S110", "verificado": true },
-              { "id": "metodologia_pesq", "nome": "Metodologia de Pesquisa", "professor": "Eduardo G.", "horarios": ["Qui 14:40-16:40"], "sala": "S305", "verificado": true },
-              { "id": "prog_web", "nome": "Programação Web", "requisitos": ["prog3", "bd2", "lab_bd2"], "professor": "Lázaro", "horarios": ["Qui 16:40-18:30"], "sala": "S305", "verificado": true },
-              { "id": "prototipacao", "nome": "Projeto de Prototipação", "requisitos": ["eng_soft", "lab_eng_soft"], "professor": "Eduardo G.", "horarios": ["Sex 09:00-10:40"], "sala": "S305", "verificado": true },
-              { "id": "est_dados", "nome": "Estrutura de Dados", "requisitos": ["prog3", "lab_prog3"], "professor": "Luiz Flavio", "horarios": ["Sex 14:40-16:40"], "sala": "S305", "verificado": true },
-              { "id": "lab_est_dados", "nome": "Laboratório de Estrutura de Dados", "requisitos": ["prog3", "lab_prog3"], "professor": "Luiz Flavio", "horarios": ["Sex 16:40-18:30"], "sala": "S110", "verificado": true }
+              { "id": "ger_proj", "nome": "Gerenciamento de Projetos", "requisitos": ["eng_soft", "lab_eng_soft"], "correquisitos": ["lab_ger_proj"], "professor": "Wanderson", "horarios": ["Seg 13:00-14:40"], "sala": "S305", "verificado": true },
+              { "id": "probabilidade", "nome": "Teoria da Probabilidade", "requisitos": ["estatistica"], "professor": "Nilton", "horarios": ["Ter 13:00-14:40", "Qui 13:00-14:40"], "sala": "S305", "verificado": true },
+              { "id": "filosofia", "nome": "Filosofia da Tecnologia", "professor": "Paulo Bicalho", "horarios": ["Ter 14:40-16:40"], "sala": "S305", "verificado": true, "civilNight": true },
+              { "id": "lab_prog_web", "nome": "Laboratório de Programação Web", "requisitos": ["prog3", "lab_prog3", "bd2", "lab_bd2"], "correquisitos": ["prog_web"], "professor": "Lázaro", "horarios": ["Ter 16:40-18:30", "Sex 13:00-14:40"], "sala": "S112/S114", "verificado": true },
+              { "id": "lab_ger_proj", "nome": "Laboratório de Gerenciamento de Projetos", "requisitos": ["eng_soft", "lab_eng_soft"], "correquisitos": ["ger_proj"], "professor": "Wanderson", "horarios": ["Qua 13:00-14:40"], "sala": "S110", "verificado": true },
+              { "id": "metodologia_pesq", "nome": "Metodologia da Pesquisa", "requisitos": ["metodologia"], "professor": "Eduardo G.", "horarios": ["Qui 14:40-16:40"], "sala": "S305", "verificado": true },
+              { "id": "prog_web", "nome": "Programação Web", "requisitos": ["prog3", "lab_prog3", "bd2", "lab_bd2"], "correquisitos": ["lab_prog_web"], "professor": "Lázaro", "horarios": ["Qui 16:40-18:30"], "sala": "S305", "verificado": true },
+              { "id": "prototipacao", "nome": "Introdução à Experimentação e ao Desenvolvimento de Protótipos e Projetos", "professor": "Eduardo G.", "horarios": ["Sex 09:00-10:40"], "sala": "S305", "verificado": true },
+              { "id": "est_dados", "nome": "Estrutura de Dados", "requisitos": ["prog2", "lab_prog2"], "correquisitos": ["lab_est_dados"], "professor": "Luiz Flavio", "horarios": ["Sex 14:40-16:40"], "sala": "S305", "verificado": true },
+              { "id": "lab_est_dados", "nome": "Laboratório de Estrutura de Dados", "requisitos": ["prog2", "lab_prog2"], "correquisitos": ["est_dados"], "professor": "Luiz Flavio", "horarios": ["Sex 16:40-18:30"], "sala": "S110", "verificado": true }
             ]
           },
           {
             "semestre": "6º Semestre",
             "disciplinas": [
               { "id": "emp1", "nome": "Empreendedorismo I", "professor": "Cristiano", "horarios": ["Seg 13:00-14:40", "Sex 14:40-16:40"], "sala": "S316", "verificado": true },
-              { "id": "nuvem", "nome": "Computação em Nuvem", "requisitos": ["redes", "so"], "professor": "BP", "horarios": ["Seg 14:40-16:40"], "sala": "S316", "verificado": true },
-              { "id": "ml", "nome": "Aprendizado de Máquina", "requisitos": ["probabilidade", "algebra_lin", "prog3"], "professor": "André", "horarios": ["Seg 16:40-18:30", "Ter 13:00-14:40"], "sala": "S110/S116", "verificado": true },
-              { "id": "lab_mobile", "nome": "Laboratório de Desenvolvimento de Aplicações Móveis", "requisitos": ["prog_web", "lab_prog_web"], "professor": "Lázaro", "horarios": ["Ter 14:40-16:40", "Sex 16:40-18:30"], "sala": "S116", "verificado": true },
-              { "id": "lab_nuvem", "nome": "Laboratório de Computação em Nuvem", "requisitos": ["nuvem"], "professor": "BP", "horarios": ["Qua 13:00-14:40"], "sala": "S114", "verificado": true },
-              { "id": "mobile", "nome": "Desenvolvimento de Aplicações Móveis", "requisitos": ["prog_web", "lab_prog_web"], "professor": "Lázaro", "horarios": ["Qui 13:00-14:40"], "verificado": true },
-              { "id": "discreta", "nome": "Matemática Discreta", "requisitos": ["algebra_lin"], "professor": "Luiz Flavio", "horarios": ["Qui 14:40-16:40", "Sex 13:00-14:40"], "sala": "S316", "verificado": true }
+              { "id": "nuvem", "nome": "Computação em Nuvem", "requisitos": ["redes", "lab_redes"], "correquisitos": ["lab_nuvem"], "professor": "BP", "horarios": ["Seg 14:40-16:40"], "sala": "S316", "verificado": true },
+              { "id": "ml", "nome": "Análise Multivariada", "requisitos": ["probabilidade"], "professor": "André", "horarios": ["Seg 16:40-18:30", "Ter 13:00-14:40"], "sala": "S110/S116", "verificado": true },
+              { "id": "lab_mobile", "nome": "Laboratório de Desenvolvimento de Aplicações para Dispositivos Móveis", "requisitos": ["prog_web", "lab_prog_web"], "correquisitos": ["mobile"], "professor": "Lázaro", "horarios": ["Ter 14:40-16:40", "Sex 16:40-18:30"], "sala": "S116", "verificado": true },
+              { "id": "lab_nuvem", "nome": "Laboratório de Computação em Nuvem", "requisitos": ["redes", "lab_redes"], "correquisitos": ["nuvem"], "professor": "BP", "horarios": ["Qua 13:00-14:40"], "sala": "S114", "verificado": true },
+              { "id": "mobile", "nome": "Desenvolvimento de Aplicações para Dispositivos Móveis", "requisitos": ["prog_web", "lab_prog_web"], "correquisitos": ["lab_mobile"], "professor": "Lázaro", "horarios": ["Qui 13:00-14:40"], "verificado": true },
+              { "id": "discreta", "nome": "Matemática Discreta", "requisitos": ["prog2", "lab_prog2", "probabilidade"], "professor": "Luiz Flavio", "horarios": ["Qui 14:40-16:40", "Sex 13:00-14:40"], "sala": "S316", "verificado": true }
             ]
           },
           {
             "semestre": "7º Semestre",
             "disciplinas": [
-              { "id": "lab_mineracao", "nome": "Laboratório de Mineração de Dados", "requisitos": ["bd2", "lab_bd2", "prog3"], "professor": "BP", "horarios": ["Seg 13:00-14:40"], "sala": "S110", "verificado": true },
+              { "id": "lab_mineracao", "nome": "Laboratório de Mineração de Dados", "requisitos": ["est_dados", "bd2"], "correquisitos": ["mineracao"], "professor": "BP", "horarios": ["Seg 13:00-14:40"], "sala": "S110", "verificado": true },
               { "id": "emp2", "nome": "Empreendedorismo II", "requisitos": ["emp1"], "professor": "Cristiano", "horarios": ["Seg 14:40-16:40", "Ter 15:30-17:20"], "sala": "S112", "verificado": true },
-              { "id": "lab_ling_prog", "nome": "Laboratório de Linguagens de Programação", "requisitos": ["prog3", "lab_prog3"], "professor": "Novo Efetivo 2", "horarios": ["Seg 16:40-18:30"], "sala": "S116", "verificado": true },
+              { "id": "lab_ling_prog", "nome": "Laboratório de Linguagens de Programação", "requisitos": ["prog2", "lab_prog2"], "correquisitos": ["ling_prog"], "professor": "Novo Efetivo 2", "horarios": ["Seg 16:40-18:30"], "sala": "S116", "verificado": true },
               { "id": "econ", "nome": "Engenharia Econômica", "professor": "BP", "horarios": ["Ter 13:00-15:30"], "sala": "S316", "verificado": true },
-              { "id": "iai", "nome": "Inteligência Artificial Industrial", "requisitos": ["ml"], "professor": "Lázaro/Marcelo", "horarios": ["Qua 13:00-14:40", "Sex 14:40-16:40"], "sala": "S305", "verificado": true },
-              { "id": "mineracao", "nome": "Mineração de Dados", "requisitos": ["bd2", "lab_bd2", "prog3"], "professor": "BP", "horarios": ["Qui 13:00-14:40"], "sala": "S305", "verificado": true },
-              { "id": "lab_iai", "nome": "Laboratório de IAI", "requisitos": ["iai"], "professor": "Lázaro/Marcelo", "horarios": ["Qui 14:40-16:40"], "sala": "S114", "verificado": true },
-              { "id": "ling_prog", "nome": "Linguagens de Programação", "requisitos": ["prog3", "lab_prog3"], "professor": "Novo Efetivo 2", "horarios": ["Sex 13:00-14:40"], "sala": "S305", "verificado": true }
+              { "id": "iai", "nome": "Inteligência Artificial I", "requisitos": ["est_dados", "lab_est_dados", "ml"], "correquisitos": ["lab_iai"], "professor": "Lázaro/Marcelo", "horarios": ["Qua 13:00-14:40", "Sex 14:40-16:40"], "sala": "S305", "verificado": true },
+              { "id": "mineracao", "nome": "Mineração de Dados", "requisitos": ["est_dados", "lab_est_dados", "bd2", "lab_bd2"], "correquisitos": ["lab_mineracao"], "professor": "BP", "horarios": ["Qui 13:00-14:40"], "sala": "S305", "verificado": true },
+              { "id": "lab_iai", "nome": "Laboratório de Inteligência Artificial I", "requisitos": ["est_dados", "lab_est_dados", "ml"], "correquisitos": ["iai"], "professor": "Lázaro/Marcelo", "horarios": ["Qui 14:40-16:40"], "sala": "S114", "verificado": true },
+              { "id": "ling_prog", "nome": "Linguagens de Programação", "requisitos": ["prog2", "lab_prog2"], "correquisitos": ["lab_ling_prog"], "professor": "Novo Efetivo 2", "horarios": ["Sex 13:00-14:40"], "sala": "S305", "verificado": true }
+            ]
+          },
+          {
+            "semestre": "8º Semestre",
+            "disciplinas": [
+              { "id": "sist_info", "nome": "Sistemas de Informação", "correquisitos": ["seguranca_aud"], "professor": "Wanderson", "horarios": ["Seg 13:00-14:40", "Ter 14:40-16:40"], "sala": "S302", "verificado": true },
+              { "id": "gestao_ti", "nome": "Gestão de TI", "correquisitos": ["sist_info"], "professor": "Wanderson", "horarios": ["Seg 14:40-16:40", "Ter 13:00-14:40"], "sala": "S302", "verificado": true },
+              { "id": "lab_cien_dados", "nome": "Laboratório de Ciência de Dados", "requisitos": ["mineracao", "lab_mineracao", "ml"], "correquisitos": ["cien_dados"], "professor": "Bruno Perillo", "horarios": ["Seg 16:40-18:30"], "sala": "S114", "verificado": true },
+              { "id": "gest_tec_seg", "nome": "Seminários de SI", "professor": "Eduardo G.", "horarios": ["Qua 14:40-16:40"], "verificado": true },
+              { "id": "iaii", "nome": "Inteligência Artificial II", "requisitos": ["iai", "lab_iai"], "correquisitos": ["lab_iaii"], "professor": "Douglas", "horarios": ["Qua 13:00-14:40", "Sex 16:40-18:30"], "verificado": true },
+              { "id": "lab_iaii", "nome": "Laboratório de Inteligência Artificial II", "requisitos": ["iai", "lab_iai"], "correquisitos": ["iaii"], "professor": "Douglas", "horarios": ["Qui 13:00-14:40"], "sala": "S112", "verificado": true },
+              { "id": "cien_dados", "nome": "Ciência de Dados", "requisitos": ["mineracao", "lab_mineracao", "ml"], "correquisitos": ["lab_cien_dados"], "professor": "Bruno Perillo", "horarios": ["Qui 14:40-16:40"], "sala": "S305", "verificado": true },
+              { "id": "psic_organ", "nome": "Psicologia Aplicada às Organizações", "professor": "Evelyn", "horarios": ["Qui 16:40-18:30"], "verificado": true, "civilNight": true },
+              { "id": "seguranca_aud", "nome": "Segurança e Auditoria de Sistemas", "correquisitos": ["gestao_ti"], "professor": "João Carlos", "horarios": ["Sex 14:40-16:40"], "verificado": true }
             ]
           }
         ];
-
         let subjectsData = JSON.parse(JSON.stringify(defaultSubjectsData));
         
         let appState = {
@@ -881,12 +895,31 @@
                         item.dataset.subjName = subj.nome; 
                         
                         const missingReqs = (subj.requisitos || []).filter(reqId => !approvedSet.has(reqId));
-                        const isLocked = missingReqs.length > 0;
+                        let isLocked = missingReqs.length > 0;
+                        let lockTitle = isLocked ? `🔒 Bloqueado! Requer: ${missingReqs.map(rid => subjectMap[rid] || rid).join(', ')}` : '';
+
+                        // Se a própria disciplina está liberada, ainda assim verifica se algum
+                        // correquisito dela está travado por pré-requisito pendente. Como
+                        // correquisitos não podem ser cursados separadamente, a disciplina
+                        // inteira precisa ficar bloqueada nesse caso (evita marcar uma matéria
+                        // "solta" cujo par obrigatório não pode ser selecionado).
+                        if (!isLocked) {
+                            const group = getCorequisiteGroup(subj);
+                            for (const member of group) {
+                                if (member.id === subj.id) continue;
+                                const memberMissing = (member.requisitos || []).filter(r => !approvedSet.has(r));
+                                if (memberMissing.length > 0) {
+                                    isLocked = true;
+                                    const reqNames = memberMissing.map(r => subjectMap[r] || r).join(', ');
+                                    lockTitle = `🔒 Bloqueado! O correquisito "${member.nome}" exige: ${reqNames} (não cumprido)`;
+                                    break;
+                                }
+                            }
+                        }
 
                         if (isLocked) {
                             item.classList.add('locked');
-                            const reqNames = missingReqs.map(rid => subjectMap[rid] || rid).join(', ');
-                            item.title = `🔒 Bloqueado! Requer: ${reqNames}`;
+                            item.title = lockTitle;
                         } else {
                             if (selectedSet.has(subj.nome)) item.classList.add('selected');
                             if (failedSet.has(subj.id)) item.classList.add('reprovado-flag');
@@ -894,6 +927,12 @@
 
                         const reqIcon = isLocked ? `<span class="locked-badge">🔒</span>` : '';
                         const alertIcon = failedSet.has(subj.id) ? `<span class="alert-badge">REFAZER!</span>` : '';
+                        const civilBadge = subj.civilNight ? `<span class="civil-badge" title="Esta matéria também é oferecida à noite no curso de Engenharia Civil. Em caso de choque de horário aqui, verifique a possibilidade de cursá-la por lá.">🌙 Também na Eng. Civil (noite)</span>` : '';
+                        let coreqBadge = '';
+                        if (subj.correquisitos && subj.correquisitos.length > 0 && !isLocked) {
+                            const coreqNames = subj.correquisitos.map(cid => subjectMap[cid] || cid).join(', ');
+                            coreqBadge = `<span class="coreq-badge" title="Selecionar esta matéria seleciona automaticamente: ${coreqNames}">🔗 Correquisito</span>`;
+                        }
 
                         item.innerHTML = `
                             <div class="checkbox-wrapper">
@@ -901,7 +940,7 @@
                             </div>
                             <div>
                                 <div class="subject-name">${reqIcon}${subj.nome}${alertIcon}</div>
-                                <div class="subject-details">${subj.professor}</div>
+                                <div class="subject-details">${subj.professor}${civilBadge}${coreqBadge}</div>
                             </div>
                         `;
 
@@ -925,12 +964,119 @@
             });
         }
 
+        // Constrói o grafo de correquisitos como bidirecional: se A lista B como
+        // correquisito, a ligação A-B vale nos dois sentidos, mesmo que B não liste A
+        // de volta nos dados. Isso evita que a "porta de entrada" pela qual o aluno
+        // clica (ex: o laboratório em vez da matéria teórica) determine um grupo
+        // incompleto de correquisitos.
+        function buildCorequisiteAdjacency() {
+            const adj = {};
+            subjectsData.forEach(sem => {
+                if (!sem.disciplinas) return;
+                sem.disciplinas.forEach(d => {
+                    if (!adj[d.id]) adj[d.id] = new Set();
+                    (d.correquisitos || []).forEach(cid => {
+                        adj[d.id].add(cid);
+                        if (!adj[cid]) adj[cid] = new Set();
+                        adj[cid].add(d.id);
+                    });
+                });
+            });
+            return adj;
+        }
+
+        // Retorna a lista completa de disciplinas conectadas por correquisito à
+        // disciplina informada (componente conexo inteiro do grafo, não só o vizinho
+        // direto), incluindo ela mesma.
+        function getCorequisiteGroup(subject) {
+            const adj = buildCorequisiteAdjacency();
+            const visited = new Set([subject.id]);
+            const queue = [subject.id];
+            while (queue.length > 0) {
+                const currentId = queue.shift();
+                const neighbors = adj[currentId] || new Set();
+                neighbors.forEach(nid => {
+                    if (!visited.has(nid)) {
+                        visited.add(nid);
+                        queue.push(nid);
+                    }
+                });
+            }
+            return Array.from(visited).map(id => findSubjectById(id)).filter(Boolean);
+        }
+
+        function findSubjectById(id) {
+            for (const sem of subjectsData) {
+                if (!sem.disciplinas) continue;
+                const found = sem.disciplinas.find(d => d.id === id);
+                if (found) return found;
+            }
+            return null;
+        }
+
+        // Remove do perfil qualquer disciplina selecionada que não deveria mais estar
+        // selecionável: seja porque ela mesma tem pré-requisito pendente, seja porque
+        // algum membro do seu grupo de correquisitos tem. Necessário porque estados
+        // antigos salvos no localStorage podem ter ficado inconsistentes antes desta
+        // correção (ou após importar um histórico/JSON novo).
+        function sanitizeProfileSelections(profile) {
+            const approvedSet = new Set(profile.history.approved);
+            const selectedSet = new Set(profile.selected);
+            let changed = false;
+
+            subjectsData.forEach(sem => {
+                if (!sem.disciplinas) return;
+                sem.disciplinas.forEach(subj => {
+                    if (!selectedSet.has(subj.nome)) return;
+                    const group = getCorequisiteGroup(subj);
+                    const lockedMember = group.find(member => {
+                        const missing = (member.requisitos || []).filter(r => !approvedSet.has(r));
+                        return missing.length > 0;
+                    });
+                    if (lockedMember) {
+                        group.forEach(member => {
+                            if (selectedSet.delete(member.nome)) changed = true;
+                        });
+                    }
+                });
+            });
+
+            if (changed) profile.selected = Array.from(selectedSet);
+            return changed;
+        }
+
         function toggleSubject(subject) {
             const profile = getActiveProfile();
+            const approvedSet = new Set(profile.history.approved);
             const selectedSet = new Set(profile.selected);
-            if (selectedSet.has(subject.nome)) selectedSet.delete(subject.nome);
-            else selectedSet.add(subject.nome);
-            
+            const group = getCorequisiteGroup(subject);
+            const turningOn = !selectedSet.has(subject.nome);
+
+            if (turningOn) {
+                // Trava defensiva: nenhum membro do grupo (a disciplina clicada OU
+                // qualquer correquisito dela) pode ter pré-requisito pendente. Como
+                // correquisitos são selecionados/removidos sempre juntos, não pode
+                // existir cenário em que um membro do grupo fica "selecionado" sem
+                // cumprir o próprio pré-requisito.
+                for (const member of group) {
+                    const missing = (member.requisitos || []).filter(r => !approvedSet.has(r));
+                    if (missing.length > 0) {
+                        const missingNames = missing.map(r => subjectMap[r] || r).join(', ');
+                        if (member.id === subject.id) {
+                            alert(`⚠️ Não é possível selecionar "${subject.nome}": falta(m) o(s) pré-requisito(s) ${missingNames}.`);
+                        } else {
+                            alert(`⚠️ Não é possível selecionar "${subject.nome}": ela é correquisito de "${member.nome}", que exige ${missingNames} (pré-requisito ainda não cumprido). Como correquisitos não podem ser cursados separadamente, a seleção foi bloqueada.`);
+                        }
+                        return; // Aborta — nada é alterado no perfil
+                    }
+                }
+                // Liga a disciplina e todos os correquisitos dela juntos
+                group.forEach(s => selectedSet.add(s.nome));
+            } else {
+                // Desliga a disciplina e todos os correquisitos dela juntos
+                group.forEach(s => selectedSet.delete(s.nome));
+            }
+
             profile.selected = Array.from(selectedSet);
             saveAppState();
             updateSchedule();
