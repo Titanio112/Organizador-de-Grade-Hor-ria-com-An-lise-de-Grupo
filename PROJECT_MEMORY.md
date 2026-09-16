@@ -21,7 +21,9 @@ _(atualizar a cada sessão)_
 - [x] Etapa 3: separar render.js
 - [x] Etapa 4: criar main.js e conectar tudo (inline no index.html)
 - [x] Etapa 5: testar equivalência visual/funcional com index.html original
+- [x] Faxina do repo (2026-09-16): removidos .bak/.new/PNGs/.playwright-mcp/.firecrawl do versionamento (142 arquivos), .gitignore atualizado, schema.sql corrigido (subjects fechada + is_active + RLS em student_subjects), README.md criado. Commit f0dee96.
 - [ ] Etapa 6: subir pro GitHub
+- [ ] DECISAO PENDENTE: integrar Supabase (js/) ao fluxo principal OU manter 100% estatico
 
 ## Log de decisões e planos
 _(cada entrada: data, o que foi decidido, por quê)_
