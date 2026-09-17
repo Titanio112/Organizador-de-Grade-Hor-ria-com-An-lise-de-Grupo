@@ -26,8 +26,12 @@ _(atualizar a cada sessão)_
 - [x] Seed: 65 materias reais migradas do dados.js para subjects (com pre/co-requisitos resolvidos por UUID; 40 materias com pre-req, 37 com co-req). Seeds genericas CCO* removidas.
 - [x] Seguranca: senha do banco saiu do codigo -> grade-horaria/.env (gitignored). ATENCAO: senha antiga vazou no commit 22c763e (execute_schema.js) - ROTACIONAR a senha do banco no dashboard Supabase.
 - [x] Auth end-to-end validado (2026-09-16): signup -> login -> profile automatico -> RLS. Teste: supabase/test_api.js (6/6). Credenciais em js/config.js (frontend) e .env (backend scripts). Commit 761a0af.
-- [ ] AGUARDANDO APROVACAO DO USUARIO: capacidades do banco alinhadas? (ver secao "Capacidades do banco" abaixo)
-- [ ] Frontend: conectar UI ao Supabase (login/cadastro no index.html, sincronizar grade local <-> nuvem)
+- [x] REMODELAGEM v2 (2026-09-16, aprovada pelo usuario/arquiteto): hierarquia institutions>campuses>courses; subjects (catalogo, workload_hours 30/60/90) separado de classes (turma: professor, schedule, social_group_link); student_classes substitui student_subjects (grade_id+class_id+status+final_grade+absences); profiles ganha course_id/is_public. 9 tabelas, 22 policies, realtime.
+- [x] Trigger check_prerequisites no banco: BEFORE INSERT em student_classes bloqueia matricula sem pre-req completed (raise 23514). PROVADO: test_trigger.js 10/10 (bloqueia prog2 sem pre-req, libera apos completed, faltas registram, RLS bloqueia anon).
+- [x] Seed v2: 65 subjects + 65 classes + hierarquia CEFET-MG/Varginha/BSI. Idempotente.
+- [x] Removido Importar/Exportar/Colar JSON da UI + logica.js + render.js (app 100% nuvem). UI validada via screenshot headless (grade+locks intactas).
+- [x] docs/DB_SCHEMA.md v2 para revisao do arquiteto.
+- [ ] PROXIMA ETAPA (autorizada): tela de login/cadastro no index.html + sincronizar grade local <-> nuvem
 - [ ] Etapa 6: subir pro GitHub
 
 ## Capacidades do banco (visao de produto)
