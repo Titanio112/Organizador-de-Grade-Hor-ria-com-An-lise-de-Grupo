@@ -32,6 +32,7 @@ _(atualizar a cada sessão)_
 - [x] Removido Importar/Exportar/Colar JSON da UI + logica.js + render.js (app 100% nuvem). UI validada via screenshot headless (grade+locks intactas).
 - [x] docs/DB_SCHEMA.md v2 para revisao do arquiteto.
 - [x] Teste funcional com mocks (2026-09-16): test_mock_flow.js (16/16) — 3 alunos ficticios (Ana/Bruno/Carla), trigger de pre-req bloqueando 2 cenarios, privacidade grade publica/privada via RLS, colegas de turma via shares_class, contador de faltas. create_mock_users.js (cria usuarios via SQL com receita completa: auth.users + identities + profiles). cleanup_mocks.js apaga tudo em cascata. Usuario/controle: emails gradehoraria+mock.*. Banco deixado LIMPO apos teste.
+- [x] Normalizacao v3 (2026-09-16): professors (idx name) + class_professors (N:N, "Weider/Marcelo" virou 2 vinculos reais) + class_schedules (fim do JSONB; idx day_of_week/start_time; day 0=dom..6=sab). classes perdeu professor_name/schedule, ganhou code interno. Trigger trg_check_time_conflict (INSERT+UPDATE) barra choque real, libera sequencia 16:40->16:40. Seed v3: 65 subjects, 27 profs, 65 classes, 72 vinculos, 89 blocos. test_normalization.js 8/8 + test_mock_flow.js 16/16. Banco limpo apos.
 - [ ] PROXIMA ETAPA (autorizada): tela de login/cadastro no index.html + sincronizar grade local <-> nuvem
 
 ## Log detalhado — sessão de testes com mocks (2026-09-16)
