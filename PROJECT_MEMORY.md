@@ -31,6 +31,7 @@ _(atualizar a cada sessão)_
 - [x] Seed v2: 65 subjects + 65 classes + hierarquia CEFET-MG/Varginha/BSI. Idempotente.
 - [x] Removido Importar/Exportar/Colar JSON da UI + logica.js + render.js (app 100% nuvem). UI validada via screenshot headless (grade+locks intactas).
 - [x] docs/DB_SCHEMA.md v2 para revisao do arquiteto.
+- [x] Teste funcional com mocks (2026-09-16): test_mock_flow.js (16/16) — 3 alunos ficticios (Ana/Bruno/Carla), trigger de pre-req bloqueando 2 cenarios, privacidade grade publica/privada via RLS, colegas de turma via shares_class, contador de faltas. create_mock_users.js (cria usuarios via SQL com receita completa: auth.users + identities + profiles). cleanup_mocks.js apaga tudo em cascata. Usuario/controle: emails gradehoraria+mock.*. Banco deixado LIMPO apos teste.
 - [ ] PROXIMA ETAPA (autorizada): tela de login/cadastro no index.html + sincronizar grade local <-> nuvem
 - [ ] Etapa 6: subir pro GitHub
 
