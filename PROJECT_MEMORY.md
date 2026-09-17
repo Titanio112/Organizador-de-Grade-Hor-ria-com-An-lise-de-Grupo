@@ -33,6 +33,47 @@ _(atualizar a cada sessão)_
 - [x] docs/DB_SCHEMA.md v2 para revisao do arquiteto.
 - [x] Teste funcional com mocks (2026-09-16): test_mock_flow.js (16/16) — 3 alunos ficticios (Ana/Bruno/Carla), trigger de pre-req bloqueando 2 cenarios, privacidade grade publica/privada via RLS, colegas de turma via shares_class, contador de faltas. create_mock_users.js (cria usuarios via SQL com receita completa: auth.users + identities + profiles). cleanup_mocks.js apaga tudo em cascata. Usuario/controle: emails gradehoraria+mock.*. Banco deixado LIMPO apos teste.
 - [ ] PROXIMA ETAPA (autorizada): tela de login/cadastro no index.html + sincronizar grade local <-> nuvem
+
+## Log detalhado — sessão de testes com mocks (2026-09-16)
+
+### Erros e correções (ordem cronológica)
+
+1. **Signup 500 `unexpected_failure` em massa**
+   - Causa: rate limit de envio de email do plano free (cada signup dispara email de confirmação; após ~3 envios/hora começa a falhar com 429/500).
+   - Solução: `create_mock_users.js` — criar usuários via SQL direto. RECETA COMPLETA que funciona com GoTrue: `auth.users` (com `is_sso_user`, `is_anonymous`, `raw_app_meta_data` preenchidos) **+** linha em `auth.identities` (provider `email`, identity_data com `sub`+`email`). Confirmação de email setada direto (`email_confirmed_at = NOW()`).
+   - ⚠️ Regra registrada: inserção INCOMPLETA em auth.users quebra o GoTrue inteiro ("Database error finding user"). Só usar a receita completa.
+
+2. **`cannot insert a non-DEFAULT value into column "email"` (428C9)**
+   - Causa: `auth.identities.email` é coluna GERADA (computed) no Supabase atual — não aceita INSERT explícito. O valor vem de `identity_data->>'email'`.
+   - Solução: remover `email` do INSERT em identities.
+
+3. **`current transaction is aborted` (25P02) escondendo o erro real**
+   - Causa: catch interno tentando fallback dentro de transação já abortada — o erro verdadeiro era engolido.
+   - Solução: removidos os catches aninhados; erros sobem limpos. Lição: em tx, primeiro erro aborta tudo — logar SEMPRE o primeiro.
+
+4. **Duplicação e fragmentos no schema.sql v2 (erros de sintaxe sucessivos)**
+   - Causa: inserts em linha via editor caíram no meio do `CREATE TABLE grade_subjects` e o arquivo ficou com seções duplicadas ("CREATE TABLE student_classes" 2x) + fragmento órfão de `UNIQUE(grade_id, subject_id)`.
+   - Solução: inspeção por numero de linha (Select-String), remoção da segunda metade duplicada, fechamento correto de grade_subjects.
+   - Lição: para arquivos SQL grandes, preferir reescrever usando `psql -f` mental: validar com print da estrutura (CREATE TABLE/FUNCTION index) antes de rodar.
+
+5. **`relation "profiles" does not exist` ao criar `is_admin()`**
+   - Causa: função `is_admin()` era criada ANTES da tabela `profiles` (funções SQL validam tabelas na criação).
+   - Solução: mover `is_admin()` para depois de `CREATE TABLE profiles`.
+
+6. **Falso-negativo: "Carla le a propria grade"**
+   - Causa: asserção do TESTE estava errada, não o RLS — Carla via 3 grades (a dela privada + as 2 públicas), porque grade pública é visível para todos por design.
+   - Solução: filtrar por `student_id` na query do teste. RLS estava correto.
+
+7. **Rerun do teste quebrava (conflitos UNIQUE)**
+   - Causa: rerodar test_mock_flow sem cleanup → `UNIQUE(student_id, semester, year, is_active)` em grades e `UNIQUE(grade_id, class_id)` em matrículas.
+   - Solução: teste idempotente (helper `enroll()` trata duplicate como "permitido"; grade existente é reutilizada) + fluxo oficial `cleanup_mocks.js` → `create_mock_users.js` → `test_mock_flow.js`.
+
+### Resultado final da bateria
+- Login: 3/3 (usuários SQL fazem login normal pela API GoTrue)
+- Trigger: bloqueia prog2 (Ana) e bd2 (Bruno) sem pré-req; libera após completed
+- Privacidade: grade pública visível / privada invisível / shares_class expõe só turmas em comum
+- Faltas: contador `absences` gravando (cálculo 25% fica na UI)
+- **Total: 16/16 PASS** — banco deixado limpo via cleanup_mocks.js
 - [ ] Etapa 6: subir pro GitHub
 
 ## Capacidades do banco (visao de produto)
