@@ -25,8 +25,27 @@ _(atualizar a cada sessão)_
 - [x] Supabase: schema aplicado no banco real (zhcubvmismnmvtrbolbu) - 5 tabelas, 2 funcoes (handle_new_user, update_updated_at_column), 14 policies, realtime habilitado. Scripts: reset_schema.js (reset completo), execute_schema.js (aplicar), seed_subjects.mjs (seed real), cleanup_seeds.js, db.js (helper .env). Commit 4604534.
 - [x] Seed: 65 materias reais migradas do dados.js para subjects (com pre/co-requisitos resolvidos por UUID; 40 materias com pre-req, 37 com co-req). Seeds genericas CCO* removidas.
 - [x] Seguranca: senha do banco saiu do codigo -> grade-horaria/.env (gitignored). ATENCAO: senha antiga vazou no commit 22c763e (execute_schema.js) - ROTACIONAR a senha do banco no dashboard Supabase.
+- [x] Auth end-to-end validado (2026-09-16): signup -> login -> profile automatico -> RLS. Teste: supabase/test_api.js (6/6). Credenciais em js/config.js (frontend) e .env (backend scripts). Commit 761a0af.
+- [ ] AGUARDANDO APROVACAO DO USUARIO: capacidades do banco alinhadas? (ver secao "Capacidades do banco" abaixo)
 - [ ] Frontend: conectar UI ao Supabase (login/cadastro no index.html, sincronizar grade local <-> nuvem)
 - [ ] Etapa 6: subir pro GitHub
+
+## Capacidades do banco (visao de produto)
+_(referencia para alinhamento com o usuario - 2026-09-16)_
+
+**Implementado no banco:**
+- profiles: login/cadastro, role admin/student (aphmgbr@gmail.com vira admin via trigger), avatar
+- subjects: catalogo de 65 materias reais com pre/co-requisitos (UUID), horarios e salas por dia (JSONB), professor, semestre; admin faz CRUD e alunos recebem via realtime
+- grades: grades por aluno, multiplas (semestre/ano), ativa, publica/privada (compartilhamento)
+- grade_subjects: materias dentro de uma grade com dia/hora/sala/cor
+- student_subjects: historico/matriculas com status (enrolled/completed/dropped/pending) e nota final; aluno ve colegas da mesma materia
+- realtime habilitado nas 5 tabelas
+
+**NAO existe no banco (avaliar se precisa antes da UI):**
+- tabela explicita de amizades/grupos fixos
+- notificacoes
+- faltas/frequencia
+- mensagens entre usuarios
 
 ## Log de decisões e planos
 _(cada entrada: data, o que foi decidido, por quê)_
