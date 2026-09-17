@@ -75,6 +75,32 @@ _(atualizar a cada sessão)_
 - Privacidade: grade pública visível / privada invisível / shares_class expõe só turmas em comum
 - Faltas: contador `absences` gravando (cálculo 25% fica na UI)
 - **Total: 16/16 PASS** — banco deixado limpo via cleanup_mocks.js
+
+## Regressão completa v3 + log de erros (2026-09-16, noite)
+
+### Bateria completa — schema v3
+| Bateria | Cobertura | Resultado |
+|---|---|---|
+| test_api.js | signup/login/trigger profile/leitura anon/RLS escrita | 6/6 |
+| test_trigger.js | pre-requisitos, completed, absences, RLS | 10/10 |
+| test_mock_flow.js | 3 alunos, privacidade, shares_class, faltas | 16/16 |
+| test_normalization.js | filtro cruzado, 2 profs/turma, choque/sequencia, indices | 8/8 |
+| **TOTAL** | | **40/40** |
+
+### Erros novos encontrados na v3 e correcoes
+1. **classes perdeu chave natural ao remover professor_name/schedule** — seed deixou de ser idempotente. Solucao: coluna interna `code` UNIQUE (`prog1-A`).
+2. **Teste B falhou com turma errada** (`prog1-A` tem so 1 professor; "Weider/Marcelo" esta em `lab_prog-A`). Correcao no teste, banco estava certo.
+3. **test_mock_flow quebrou ao coexistir com trava de choque** — Bruno tentava `bd1` (Seg 13:00-14:40) que sobrepunha `metodologia`. Teste atualizado para `arq1` (sequencia 14:40). = a trava PEGOU um choque real que o teste antigo ignorava.
+4. **Rerun sem cleanup gerou falso FAIL** ("prog2 bloqueado" falhou porque Ana ja tinha completado pre-reqs no run anterior). Solucao: suites agora deletam grades antigas via API no inicio -> deterministicas.
+5. **Trava de choque e cross-grade** (design): matricula repetida da MESMA turma em outra grade do aluno e vista como conflito com si mesma. Suites isolam deletando a grade antes.
+6. **login mock logo apos create pode falhar por latencia do pooler** (raro). Workaround: rerodar; nao e bug de schema.
+
+### Estado final do banco (v3)
+12 tabelas | 6 funcoes | 3 triggers de regra de negocio | 28 policies RLS | 3 indices de busca | realtime em 9 tabelas.
+Seed: 65 subjects, 27 professores, 65 classes, 72 vinculos class_professors, 89 blocos class_schedules.
+
+### PENDENTE (nao testavel ainda)
+- **Solucao estetica/design da UI**: nao testavel ate a tela de login/interface nova existir. Registrar aqui para nao esquecer: quando a UI for feita, validar com screenshots headless + bateria visual (dark mode, modais, mobile).
 - [ ] Etapa 6: subir pro GitHub
 
 ## Capacidades do banco (visao de produto)
