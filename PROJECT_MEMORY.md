@@ -25,7 +25,7 @@ _(atualizar a cada sessão)_
 - [x] Supabase: schema aplicado no banco real (zhcubvmismnmvtrbolbu) - 5 tabelas, 2 funcoes (handle_new_user, update_updated_at_column), 14 policies, realtime habilitado. Scripts: reset_schema.js (reset completo), execute_schema.js (aplicar), seed_subjects.mjs (seed real), cleanup_seeds.js, db.js (helper .env). Commit 4604534.
 - [x] Seed: 65 materias reais migradas do dados.js para subjects (com pre/co-requisitos resolvidos por UUID; 40 materias com pre-req, 37 com co-req). Seeds genericas CCO* removidas.
 - [x] Seguranca: senha do banco saiu do codigo -> grade-horaria/.env (gitignored). ATENCAO: senha antiga vazou no commit 22c763e (execute_schema.js) - ROTACIONAR a senha do banco no dashboard Supabase.
-- [ ] Frontend: obter SUPABASE_ANON_KEY (Project Settings > API) e colar no .env; ligar js/supabase-client.js
+- [ ] Frontend: conectar UI ao Supabase (login/cadastro no index.html, sincronizar grade local <-> nuvem)
 - [ ] Etapa 6: subir pro GitHub
 
 ## Log de decisões e planos
@@ -73,7 +73,13 @@ _(cada entrada: data, o que foi decidido, por quê)_
 | 9 | Dark mode — ativar/desativar → contraste correto em grade, modais e botões | **PASS** | Toggle "🌙 Modo Escuro" OFF → ON → OFF; contraste mantido em todos elementos; console: 0 erros |
 | 10 | Histórico (fluxo Veterano) — ciclar status (⚪→🟢→🔴) → reflete na lista (bloqueio quando aprovado) | **NOT TESTED** | Requer modal "Editar Perfil" → "Sou Veterano" → interação no painel de histórico. Modal abriu mas não foi possível interagir com opção Veterano no tempo disponível. |
 
-## Log de erros encontrados
+## Log de erros encontrados (Supabase - 2026-09-16)
+- "infinite recursion detected in policy for relation profiles" — policies admin consultavam profiles dentro de policy de profiles. RESOLVIDO: funcao public.is_admin() SECURITY DEFINER STABLE; todas as 6 policies usam is_admin().
+- handle_new_user nunca criava profile (EXCEPTION WHEN OTHERS engolia o erro) — causa: CASE com literais nao tipados falhava na coercao para user_role enum. RESOLVIDO: casts explicitos ::user_role + removido EXCEPTION silencioso.
+- Insert manual em auth.users quebrou GoTrue ("Database error finding user") — nunca criar usuarios via SQL direto; usar API + confirmar email via DB.
+- Email rate limit no plano free bloqueia signups repetidos de teste — usar usuario de teste fixo + confirmacao via banco.
+- Teste automatizado: supabase/test_api.js (signup, confirmacao, login, profile via trigger, SELECT anon, RLS bloqueia escrita anon) — 6/6 PASS.
+- Credenciais: js/config.js (URL + anon key, seguro commitar) | .env (DB URL + anon key, gitignored).
 _(cada entrada: data, erro, causa, como foi resolvido — ou "não resolvido ainda")_
 - 2026-07-23: "Identifier 'timeToPixels' has already been declared" / "Identifier 'findSubjectById' has already been declared" — Causa: exports duplicados entre logica.js e render.js imports + re-exports. RESOLVIDO: logica.js importa de dados.js e define suas próprias funções; render.js importa tudo de logica.js (single source of truth).
 - 2026-07-23: "ReferenceError: selectProfileType is not defined" — Causa: onclick inline no HTML chamava função não exposta no window. RESOLVIDO: expôs funções necessárias no window dentro de init() em render.js.
