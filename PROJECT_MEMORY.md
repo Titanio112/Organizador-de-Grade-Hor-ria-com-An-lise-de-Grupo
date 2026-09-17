@@ -22,8 +22,11 @@ _(atualizar a cada sessão)_
 - [x] Etapa 4: criar main.js e conectar tudo (inline no index.html)
 - [x] Etapa 5: testar equivalência visual/funcional com index.html original
 - [x] Faxina do repo (2026-09-16): removidos .bak/.new/PNGs/.playwright-mcp/.firecrawl do versionamento (142 arquivos), .gitignore atualizado, schema.sql corrigido (subjects fechada + is_active + RLS em student_subjects), README.md criado. Commit f0dee96.
+- [x] Supabase: schema aplicado no banco real (zhcubvmismnmvtrbolbu) - 5 tabelas, 2 funcoes (handle_new_user, update_updated_at_column), 14 policies, realtime habilitado. Scripts: reset_schema.js (reset completo), execute_schema.js (aplicar), seed_subjects.mjs (seed real), cleanup_seeds.js, db.js (helper .env). Commit 4604534.
+- [x] Seed: 65 materias reais migradas do dados.js para subjects (com pre/co-requisitos resolvidos por UUID; 40 materias com pre-req, 37 com co-req). Seeds genericas CCO* removidas.
+- [x] Seguranca: senha do banco saiu do codigo -> grade-horaria/.env (gitignored). ATENCAO: senha antiga vazou no commit 22c763e (execute_schema.js) - ROTACIONAR a senha do banco no dashboard Supabase.
+- [ ] Frontend: obter SUPABASE_ANON_KEY (Project Settings > API) e colar no .env; ligar js/supabase-client.js
 - [ ] Etapa 6: subir pro GitHub
-- [ ] DECISAO PENDENTE: integrar Supabase (js/) ao fluxo principal OU manter 100% estatico
 
 ## Log de decisões e planos
 _(cada entrada: data, o que foi decidido, por quê)_
